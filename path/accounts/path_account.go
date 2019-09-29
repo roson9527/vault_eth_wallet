@@ -33,10 +33,10 @@ func pathAccount(pattern string) *framework.Path {
 func createCrossReference(
 	ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 
-		addr:=data.Get(fieldAddress).(string)
-		name:=data.Get(fieldName).(string)
-	err:= addressWrite(ctx, req, addr, name)
-	if err!=nil {
+	addr := data.Get(fieldAddress).(string)
+	name := data.Get(fieldName).(string)
+	err := addressWrite(ctx, req, addr, name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -45,11 +45,11 @@ func createCrossReference(
 
 func deleteCrossReference(
 	ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	name:=data.Get(fieldName).(string)
-	err:= addressDelete(ctx, req, name)
-	if err!=nil {
+	name := data.Get(fieldName).(string)
+	err := addressDelete(ctx, req, name)
+	if err != nil {
 		return nil, err
 	}
-		return delete(ctx, req, data)
+	return delete(ctx, req, data)
 
 }

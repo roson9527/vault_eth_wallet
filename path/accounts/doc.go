@@ -28,7 +28,7 @@ const (
 	fieldToAddress = "to_address"
 	fieldAmount    = "amount"
 
-	patternStr = "accounts/"
+	patternStr        = "accounts/"
 	patternAddressStr = "addresses/"
 )
 
