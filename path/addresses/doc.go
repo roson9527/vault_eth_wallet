@@ -19,7 +19,9 @@ const (
 	fieldVerified    = "verified"
 	fieldAccountName = "name"
 	fieldEncoding    = "encoding"
-	fieldIsHash      = "isHash"
+	fieldIsHash      = "is_hash"
+
+	valueUTF8 = "utf8"
 
 	patternStr = "addresses/"
 

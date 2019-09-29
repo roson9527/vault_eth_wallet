@@ -14,13 +14,47 @@ func pathSignTx(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
-		Fields: nil,
+		Fields: map[string]*framework.FieldSchema{
+			fieldName: {Type: framework.TypeString},
+			fieldAddressTo: {
+				Type:        framework.TypeString,
+				Description: "The address of the account to send ETH to.",
+			},
+			fieldData: {
+				Type:        framework.TypeString,
+				Description: "The data to sign.",
+			},
+			fieldEncoding: {
+				Type:        framework.TypeString,
+				Default:     valueUTF8,
+				Description: "The encoding of the data to sign.",
+			},
+			fieldAmount: {
+				Type:        framework.TypeString,
+				Description: "Amount of ETH (in wei).",
+			},
+			fieldNonce: {
+				Type:        framework.TypeString,
+				Description: "The transaction nonce.",
+			},
+			fieldGasLimit: {
+				Type:        framework.TypeString,
+				Description: "The gas limit for the transaction - defaults to 21000.",
+				Default:     "21000",
+			},
+			fieldGasPrice: {
+				Type:        framework.TypeString,
+				Description: "The gas price for the transaction in wei.",
+				Default:     "0",
+			},
+		},
 		// 执行的位置，有read，list，create，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.CreateOperation: &framework.PathOperation{
 				Callback: signTx,
 			},
 		},
+		ExistenceCheck:  base.PathExistenceCheck,
 		HelpSynopsis:    pathSignTxSyn,
 		HelpDescription: pathSignTxDesc,
 	}
@@ -35,6 +69,15 @@ func pathSign(pattern string) *framework.Path {
 			fieldData: {
 				Type:        framework.TypeString,
 				Description: fieldDataDesc,
+			},
+			fieldEncoding: {
+				Type:        framework.TypeString,
+				Default:     valueUTF8,
+				Description: "The encoding of the data to sign.",
+			},
+			fieldIsHash: {
+				Type:    framework.TypeBool,
+				Default: true,
 			},
 		},
 		// 执行的位置，有read，list，create，update
@@ -77,12 +120,9 @@ func sign(ctx context.Context, req *logical.Request, data *framework.FieldData) 
 }
 
 func signTx(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	//var txDataToSign []byte
-	//var err error
-
 	// 基本属性读取
 	// * 包括nonce需要包含在dataOrFile里 *
-	name := data.Get("name").(string)
+	name := data.Get(fieldName).(string)
 
 	account, err := ReadByName(ctx, req, name)
 	if err != nil {
@@ -101,9 +141,9 @@ func signTx(ctx context.Context, req *logical.Request, data *framework.FieldData
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			"transaction_hash":   signRet.TransactionHash,
-			"signed_transaction": signRet.Signed,
-			"address_from":       account.Address,
+			fieldTransactionHash:   signRet.TransactionHash,
+			fieldSignedTransaction: signRet.Signed,
+			fieldAddress:           account.Address,
 		},
 	}, nil
 }
@@ -115,7 +155,7 @@ func readParams(data *framework.FieldData) (*modules.SignParams, error) {
 	gasLimit := data.Get(fieldGasLimit).(string)
 	gasPrice := data.Get(fieldGasPrice).(string)
 	nonce := data.Get(fieldNonce).(string)
-	toAddress := data.Get(fieldToAddress).(string)
+	toAddress := data.Get(fieldAddressTo).(string)
 	amount := data.Get(fieldAmount).(string)
 	isHash := data.Get(fieldIsHash).(bool)
 
