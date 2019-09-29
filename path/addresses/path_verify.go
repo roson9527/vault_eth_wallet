@@ -18,19 +18,27 @@ func pathVerify(pattern string) *framework.Path {
 				Type:        framework.TypeString,
 				Description: fieldDataDesc,
 			},
+			fieldEncoding: {
+				Type:        framework.TypeString,
+				Default:     valueUTF8,
+				Description: "The encoding of the data to sign.",
+			},
+			fieldIsHash: {
+				Type:    framework.TypeBool,
+				Default: true,
+			},
 			fieldSignature: {
 				Type:        framework.TypeString,
 				Description: fieldSignatureDesc,
 			},
 		},
+		ExistenceCheck: base.PathExistenceCheck,
 		// 执行的位置，有read，list，create，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ReadOperation: &framework.PathOperation{
 				Callback: verify,
 			},
 		},
-		// TODO:ExistenceCheck
-		ExistenceCheck:  nil,
 		HelpSynopsis:    pathVerifySyn,
 		HelpDescription: pathVerifyDesc,
 	}
