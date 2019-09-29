@@ -19,14 +19,19 @@ const (
 	fieldAddress   = "address"
 	fieldData      = "data"
 	fieldEncoding  = "encoding"
-	fieldIsHash    = "isHash"
+	fieldIsHash    = "is_hash"
 	fieldSigned    = "signed"
-	fieldChainId   = "chainId"
+	fieldChainId   = "chain_id"
 	fieldGasLimit  = "gas_limit"
 	fieldGasPrice  = "gas_price"
 	fieldNonce     = "nonce"
-	fieldToAddress = "to_address"
+	fieldAddressTo = "address_to"
 	fieldAmount    = "amount"
+
+	valueUTF8 = "utf8"
+
+	fieldTransactionHash   = "transaction_hash"
+	fieldSignedTransaction = "signed_transaction"
 
 	patternStr        = "accounts/"
 	patternAddressStr = "addresses/"
