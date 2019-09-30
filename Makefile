@@ -17,7 +17,7 @@ clean:
 	rm -rf ./$(BUILD_LINUX)
 
 sum:
-	shasum -a 256 ./$(BUILD_TARGET_PLUGIN)
+	shasum -a 256 ./$(BUILD_TARGET) | awk '{print $$1}'
 
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BUILD_LINUX) -v
