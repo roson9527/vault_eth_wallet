@@ -81,11 +81,6 @@ func delete(ctx context.Context, req *logical.Request, data *framework.FieldData
 	if err := req.Storage.Delete(ctx, req.Path); err != nil {
 		return nil, err
 	}
-	//b.removeCrossReference(ctx, req, name, account.Address)
+
 	return nil, nil
 }
-
-//// TODO
-//func crossReference(ctx context.Context, req *logical.Request, name, address string) error {
-//	return nil
-//}
