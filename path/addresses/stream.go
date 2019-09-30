@@ -9,7 +9,7 @@ import (
 )
 
 func read(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	addr := data.Get("address").(string)
+	addr := data.Get(fieldAddress).(string)
 
 	address, err := readByAddr(ctx, req, addr)
 	if err != nil {
