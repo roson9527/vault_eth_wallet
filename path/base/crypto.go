@@ -86,7 +86,8 @@ func Signature(account *modules.Account, params *modules.SignParams) (*modules.S
 	}
 
 	return &modules.SignResult{
-		Signed: hexutil.Encode(sign),
+		Signed:          hexutil.Encode(sign),
+		TransactionHash: hexutil.Encode(dataBytes),
 	}, nil
 }
 

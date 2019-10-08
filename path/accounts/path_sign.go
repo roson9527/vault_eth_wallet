@@ -77,10 +77,11 @@ func pathSign(pattern string) *framework.Path {
 			},
 			fieldIsHash: {
 				Type:    framework.TypeBool,
-				Default: true,
+				Default: false,
 			},
 		},
 		// 执行的位置，有read，list，create，update
+		ExistenceCheck: base.PathExistenceCheck,
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.CreateOperation: &framework.PathOperation{
 				Callback: sign,
@@ -114,7 +115,8 @@ func sign(ctx context.Context, req *logical.Request, data *framework.FieldData) 
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			fieldSigned: signRet.Signed,
+			fieldSigned:   signRet.Signed,
+			fieldSignHash: signRet.TransactionHash,
 		},
 	}, nil
 }
