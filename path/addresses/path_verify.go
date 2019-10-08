@@ -25,7 +25,7 @@ func pathVerify(pattern string) *framework.Path {
 			},
 			fieldIsHash: {
 				Type:    framework.TypeBool,
-				Default: true,
+				Default: false,
 			},
 			fieldSignature: {
 				Type:        framework.TypeString,

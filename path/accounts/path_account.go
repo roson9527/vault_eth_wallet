@@ -14,6 +14,7 @@ func pathAccount(pattern string) *framework.Path {
 		Fields: map[string]*framework.FieldSchema{
 			fieldName: {Type: framework.TypeString},
 		},
+		//Fields:         nil,
 		ExistenceCheck: base.PathExistenceCheck,
 		// 执行的位置，有read，list，create，update
 		Operations: map[logical.Operation]framework.OperationHandler{
@@ -35,14 +36,19 @@ func pathAccount(pattern string) *framework.Path {
 func createCrossReference(
 	ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 
-	addr := data.Get(fieldAddress).(string)
-	name := data.Get(fieldName).(string)
-	err := addressWrite(ctx, req, addr, name)
+	ret, err := create(ctx, req, data)
 	if err != nil {
 		return nil, err
 	}
 
-	return create(ctx, req, data)
+	addr := ret.Data[fieldAddress].(string)
+	name := data.Get(fieldName).(string)
+	err = addressWrite(ctx, req, addr, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func deleteCrossReference(

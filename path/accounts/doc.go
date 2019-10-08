@@ -32,6 +32,7 @@ const (
 
 	fieldTransactionHash   = "transaction_hash"
 	fieldSignedTransaction = "signed_transaction"
+	fieldSignHash          = "sign_hash"
 
 	patternStr        = "accounts/"
 	patternAddressStr = "addresses/"
