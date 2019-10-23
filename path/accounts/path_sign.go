@@ -3,11 +3,12 @@ package accounts
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/roson9527/vault_eth_wallet/utils"
+
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/path/base"
-	"github.com/roson9527/vault_eth_wallet/utils"
 )
 
 func pathSignTx(pattern string) *framework.Path {
@@ -46,6 +47,11 @@ func pathSignTx(pattern string) *framework.Path {
 				Type:        framework.TypeString,
 				Description: "The gas price for the transaction in wei.",
 				Default:     "0",
+			},
+			fieldChainId: {
+				Type:        framework.TypeString,
+				Description: "ethereum network id.",
+				Default:     "1",
 			},
 		},
 		// 执行的位置，有read，list，create，update
@@ -159,22 +165,25 @@ func readParams(data *framework.FieldData) (*modules.SignParams, error) {
 	nonce := data.Get(fieldNonce).(string)
 	toAddress := data.Get(fieldAddressTo).(string)
 	amount := data.Get(fieldAmount).(string)
-	isHash := data.Get(fieldIsHash).(bool)
 
-	addr := common.HexToAddress(toAddress)
+	var addr *common.Address = nil
+	if toAddress != "" {
+		toAddr := common.HexToAddress(toAddress)
+		addr = &toAddr
+	}
+
 	fd, err := base.FormatData(txData, encoding)
 	if err != nil {
 		return nil, err
 	}
 	// TODO 处理一些默认值的问题, 比如自动ChainID, gas***, nonce等
 	return &modules.SignParams{
-		Nonce:      utils.ValidNumber(nonce).Uint64(),
-		ToAddress:  &addr,
-		Amount:     utils.ValidNumber(amount),
-		GasLimit:   utils.ValidNumber(gasLimit).Uint64(),
-		GasPrice:   utils.ValidNumber(gasPrice),
-		Data:       fd,
-		IsHashData: isHash,
-		ChainId:    utils.ValidNumber(chainId),
+		Nonce:     utils.ValidNumber(nonce).Uint64(),
+		ToAddress: addr,
+		Amount:    utils.ValidNumber(amount),
+		GasLimit:  utils.ValidNumber(gasLimit).Uint64(),
+		GasPrice:  utils.ValidNumber(gasPrice),
+		Data:      fd,
+		ChainId:   utils.ValidNumber(chainId),
 	}, nil
 }

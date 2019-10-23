@@ -69,7 +69,7 @@ func ReadByName(ctx context.Context, req *logical.Request, name string) (*module
 	return &account, nil
 }
 
-func delete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func remove(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	name := data.Get("name").(string)
 	account, err := ReadByName(ctx, req, name)
 	if err != nil {

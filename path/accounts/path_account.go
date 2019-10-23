@@ -60,5 +60,5 @@ func deleteCrossReference(
 		return nil, err
 	}
 
-	return delete(ctx, req, data)
+	return remove(ctx, req, data)
 }
