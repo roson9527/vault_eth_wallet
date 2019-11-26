@@ -7,6 +7,7 @@ require (
 	github.com/aristanetworks/goarista v0.0.0-20191015010157-ce4ff66f8dba // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/btcsuite/btcd v0.20.0-beta // indirect
+	github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d
 	github.com/elastic/gosigar v0.10.5 // indirect
 	github.com/ethereum/go-ethereum v1.9.6
 	github.com/hashicorp/go-hclog v0.9.2
