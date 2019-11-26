@@ -10,6 +10,9 @@ func FormatData(data, encoding string) ([]byte, error) {
 	var err error
 
 	if encoding == "hex" {
+		if len(data) >= 2 && data[:2] == "0x" {
+			data = data[2:]
+		}
 		txDataToSign, err = utils.Decode([]byte(data))
 	} else if encoding == "utf8" {
 		txDataToSign = []byte(data)
