@@ -10,6 +10,7 @@ import (
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/utils"
 	"golang.org/x/crypto/sha3"
+	"time"
 )
 
 func GenerateKey() (*modules.Account, error) {
@@ -36,9 +37,10 @@ func GenerateKey() (*modules.Account, error) {
 	address := hexutil.Encode(hash.Sum(nil)[12:])
 
 	return &modules.Account{
-		Address:    address,
-		PrivateKey: privateKeyString,
-		PublicKey:  publicKeyString,
+		Address:      address,
+		PrivateKey:   privateKeyString,
+		PublicKey:    publicKeyString,
+		CreationTime: time.Now().Unix(),
 	}, nil
 }
 
