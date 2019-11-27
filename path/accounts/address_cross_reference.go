@@ -13,7 +13,7 @@ func addressWrite(ctx context.Context, req *logical.Request, addr, name string) 
 		Name: name,
 	}
 
-	storageKey := fmt.Sprintf("%s/%s", patternAddressStr, addr)
+	storageKey := fmt.Sprintf("%s%s", patternAddressStr, addr)
 	entry, err := logical.StorageEntryJSON(storageKey, addrEty)
 	if err != nil {
 		return err
@@ -23,6 +23,6 @@ func addressWrite(ctx context.Context, req *logical.Request, addr, name string) 
 }
 
 func addressDelete(ctx context.Context, req *logical.Request, addr string) error {
-	storageKey := fmt.Sprintf("%s/%s", patternAddressStr, addr)
+	storageKey := fmt.Sprintf("%s%s", patternAddressStr, addr)
 	return req.Storage.Delete(ctx, storageKey)
 }
