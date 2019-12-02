@@ -105,6 +105,9 @@ func sign(ctx context.Context, req *logical.Request, data *framework.FieldData) 
 	isHash := data.Get(fieldIsHash).(bool)
 
 	dataToSign, err := base.FormatData(signData, encoding)
+	if err != nil {
+		return nil, err
+	}
 
 	account, err := ReadByName(ctx, req, name)
 	if err != nil {

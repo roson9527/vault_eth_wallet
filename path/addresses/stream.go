@@ -24,7 +24,7 @@ func read(ctx context.Context, req *logical.Request, data *framework.FieldData) 
 }
 
 func readByAddr(ctx context.Context, req *logical.Request, addr string) (*modules.Address, error) {
-	path := fmt.Sprintf("%s/%s", patternStr, addr)
+	path := fmt.Sprintf("%s%s", patternStr, addr)
 	entry, err := req.Storage.Get(ctx, path)
 	if err != nil {
 		return nil, err
