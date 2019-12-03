@@ -2,6 +2,7 @@ package accounts
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -30,7 +31,8 @@ func create(ctx context.Context, req *logical.Request, data *framework.FieldData
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			fieldAddress: accountEty.Address,
+			fieldAddress:      accountEty.Address,
+			fieldCreationTime: accountEty.CreationTime,
 		},
 	}, nil
 }
@@ -44,7 +46,8 @@ func read(ctx context.Context, req *logical.Request, data *framework.FieldData) 
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			fieldAddress: acnt.Address,
+			fieldAddress:      acnt.Address,
+			fieldCreationTime: acnt.CreationTime,
 		},
 	}, nil
 }
@@ -70,10 +73,10 @@ func ReadByName(ctx context.Context, req *logical.Request, name string) (*module
 }
 
 func remove(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	name := data.Get("name").(string)
+	name := data.Get(fieldName).(string)
 	account, err := ReadByName(ctx, req, name)
 	if err != nil {
-		return nil, fmt.Errorf(errReadAccountByName)
+		return nil, errors.Unwrap(err)
 	}
 	if account == nil {
 		return nil, nil
