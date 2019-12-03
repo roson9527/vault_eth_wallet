@@ -15,18 +15,19 @@ const (
 
 	fieldDataDesc = `The data to hash (keccak) and sign.`
 
-	fieldName      = "name"
-	fieldAddress   = "address"
-	fieldData      = "data"
-	fieldEncoding  = "encoding"
-	fieldIsHash    = "is_hash"
-	fieldSigned    = "signed"
-	fieldChainId   = "chain_id"
-	fieldGasLimit  = "gas_limit"
-	fieldGasPrice  = "gas_price"
-	fieldNonce     = "nonce"
-	fieldAddressTo = "address_to"
-	fieldAmount    = "amount"
+	fieldName         = "name"
+	fieldAddress      = "address"
+	fieldData         = "data"
+	fieldEncoding     = "encoding"
+	fieldIsHash       = "is_hash"
+	fieldSigned       = "signed"
+	fieldChainId      = "chain_id"
+	fieldGasLimit     = "gas_limit"
+	fieldGasPrice     = "gas_price"
+	fieldNonce        = "nonce"
+	fieldAddressTo    = "address_to"
+	fieldAmount       = "amount"
+	fieldCreationTime = "creation_time"
 
 	valueUTF8 = "utf8"
 
