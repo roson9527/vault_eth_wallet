@@ -9,7 +9,6 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/utils"
-	"golang.org/x/crypto/sha3"
 	"time"
 )
 
@@ -32,12 +31,8 @@ func GenerateKey() (*modules.Account, error) {
 	publicKeyBytes := crypto.FromECDSAPub(publicKeyECDSA)
 	publicKeyString := hexutil.Encode(publicKeyBytes)[4:]
 
-	hash := sha3.NewLegacyKeccak256()
-	hash.Write(publicKeyBytes[1:])
-	address := hexutil.Encode(hash.Sum(nil)[12:])
-
 	return &modules.Account{
-		Address:      address,
+		Address:      crypto.PubkeyToAddress(privateKey.PublicKey).Hex(),
 		PrivateKey:   privateKeyString,
 		PublicKey:    publicKeyString,
 		CreationTime: time.Now().Unix(),
