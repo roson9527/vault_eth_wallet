@@ -3,6 +3,7 @@ package addresses
 import (
 	"context"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/roson9527/vault_eth_wallet/modules"
@@ -24,7 +25,8 @@ func read(ctx context.Context, req *logical.Request, data *framework.FieldData) 
 }
 
 func readByAddr(ctx context.Context, req *logical.Request, addr string) (*modules.Address, error) {
-	path := fmt.Sprintf("%s%s", patternStr, addr)
+	// 这里做大小写转换用来保证归一性
+	path := fmt.Sprintf("%s%s", patternStr, common.HexToAddress(addr).Hex())
 	entry, err := req.Storage.Get(ctx, path)
 	if err != nil {
 		return nil, err
