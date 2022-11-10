@@ -16,29 +16,30 @@ package main
 
 import (
 	"context"
-	"github.com/roson9527/vault_eth_wallet/modules"
-	"github.com/roson9527/vault_eth_wallet/path/accounts"
-	"github.com/roson9527/vault_eth_wallet/path/addresses"
-	"github.com/roson9527/vault_eth_wallet/path/config"
-
+	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/roson9527/vault_eth_wallet/modules"
+	"github.com/roson9527/vault_eth_wallet/path/wallet"
 )
 
 // Factory returns the backend
 // 入口，插件的返回入口
 func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
-	b, err := NewBackend(conf)
+	b, err := NewBackend()
 	if err != nil {
 		return nil, err
 	}
-	if err := b.Setup(ctx, conf); err != nil {
+	if conf == nil {
+		return nil, fmt.Errorf("confiuration passed into backend is nil")
+	}
+	if err = b.Setup(ctx, conf); err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
-func NewBackend(conf *logical.BackendConfig) (*modules.EthWalletBackend, error) {
+func NewBackend() (*modules.EthWalletBackend, error) {
 	b := new(modules.EthWalletBackend)
 
 	// TODO
@@ -46,10 +47,7 @@ func NewBackend(conf *logical.BackendConfig) (*modules.EthWalletBackend, error) 
 		Help: "",
 		// 响应路由
 		Paths: framework.PathAppend(
-			// 不同的PATH - 比如account
-			config.Path(),
-			accounts.Path(),
-			addresses.Path(),
+			wallet.Path(),
 		),
 		// 特殊带权限路径，不能正则，但是可以通配符
 		PathsSpecial: &logical.Paths{
@@ -79,52 +77,3 @@ func NewBackend(conf *logical.BackendConfig) (*modules.EthWalletBackend, error) 
 
 	return b, nil
 }
-
-//// Backend returns the backend
-//func Backend(conf *logical.BackendConfig) (*EthereumBackend, error) {
-//	var b EthereumBackend
-//	b.Backend = &framework.Backend{
-//		Help: "",
-//		Paths: framework.PathAppend(
-//			convertPaths(&b),
-//			configPaths(&b),
-//			addressesPaths(&b),
-//			namesPaths(&b),
-//			blockPaths(&b),
-//			transactionPaths(&b),
-//			importPaths(&b),
-//			exportPaths(&b),
-//			accountsPaths(&b),
-//			contractsPaths(&b),
-//		),
-//		PathsSpecial: &logical.Paths{
-//			Unauthenticated: []string{
-//				"addresses/*",
-//				"block/*",
-//				"transaction/*",
-//				"names/*",
-//				"convert",
-//			},
-//			SealWrapStorage: []string{
-//				"accounts/",
-//			},
-//		},
-//		Secrets:     []*framework.Secret{},
-//		BackendType: logical.TypeLogical,
-//	}
-//	return &b, nil
-//}
-//
-//// EthereumBackend implements the Backend for this plugin
-//type EthereumBackend struct {
-//	*framework.Backend
-//}
-//
-//func (b *EthereumBackend) pathExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
-//	out, err := req.Storage.Get(ctx, req.Path)
-//	if err != nil {
-//		return false, fmt.Errorf("existence check failed: %v", err)
-//	}
-//
-//	return out != nil, nil
-//}

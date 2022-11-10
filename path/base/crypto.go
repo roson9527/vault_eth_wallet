@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func GenerateKey() (*modules.Account, error) {
+func GenerateKey() (*modules.Wallet, error) {
 	privateKey, err := crypto.GenerateKey()
 	if err != nil {
 		return nil, err
@@ -31,15 +31,16 @@ func GenerateKey() (*modules.Account, error) {
 	publicKeyBytes := crypto.FromECDSAPub(publicKeyECDSA)
 	publicKeyString := hexutil.Encode(publicKeyBytes)[4:]
 
-	return &modules.Account{
-		Address:      crypto.PubkeyToAddress(privateKey.PublicKey).Hex(),
-		PrivateKey:   privateKeyString,
-		PublicKey:    publicKeyString,
-		CreationTime: time.Now().Unix(),
+	return &modules.Wallet{
+		Address:    crypto.PubkeyToAddress(privateKey.PublicKey).Hex(),
+		PrivateKey: privateKeyString,
+		PublicKey:  publicKeyString,
+		CreateTime: time.Now().Unix(),
+		NameSpaces: make([]string, 0),
 	}, nil
 }
 
-func SignatureTx(account *modules.Account, params *modules.SignParams) (*modules.SignResult, error) {
+func SignatureTx(account *modules.Wallet, params *modules.SignParams) (*modules.SignResult, error) {
 	privateKey, err := crypto.HexToECDSA(account.PrivateKey)
 	if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func SignatureTx(account *modules.Account, params *modules.SignParams) (*modules
 	}, nil
 }
 
-func Signature(account *modules.Account, params *modules.SignParams) (*modules.SignResult, error) {
+func Signature(account *modules.Wallet, params *modules.SignParams) (*modules.SignResult, error) {
 	privateKey, err := crypto.HexToECDSA(account.PrivateKey)
 	if err != nil {
 		return nil, err
@@ -96,7 +97,7 @@ func newTx(params *modules.SignParams) *types.Transaction {
 		params.Nonce, *params.ToAddress, params.Amount, params.GasLimit, params.GasPrice, params.Data)
 }
 
-func Verify(acct *modules.Account, dataByte []byte, signature string, isHash bool) (bool, error) {
+func Verify(acct *modules.Wallet, dataByte []byte, signature string, isHash bool) (bool, error) {
 	privateKey, err := crypto.HexToECDSA(acct.PrivateKey)
 	if err != nil {
 		return false, err
