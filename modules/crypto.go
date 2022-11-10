@@ -5,7 +5,7 @@ import (
 	"math/big"
 )
 
-// (nonce, toAddress, amount, gasLimit, gasPrice, txDataToSign)
+// SignParams (nonce, toAddress, amount, gasLimit, gasPrice, txDataToSign)
 type SignParams struct {
 	Nonce      uint64
 	ToAddress  *common.Address
