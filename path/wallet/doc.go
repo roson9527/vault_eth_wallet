@@ -17,7 +17,7 @@ const (
 
 const (
 	fieldAddress    = "address"
-	fieldCreateTime = "create_time"
+	fieldUpdateTime = "update_time"
 	fieldNameSpace  = "namespace"
 	fieldNameSpaces = "namespaces"
 	fieldPrivateKey = "private_key"
