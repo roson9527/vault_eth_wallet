@@ -17,7 +17,7 @@ type Wallet struct {
 	NameSpaces []string `json:"namespaces,omitempty"`
 }
 
-func (w *Wallet) SignETH(unsignTx *types.Transaction, chainId int64) (*types.Transaction, error) {
+func (w *Wallet) SignEthTx(unsignTx *types.Transaction, chainId int64) (*types.Transaction, error) {
 	privateKey, err := crypto.HexToECDSA(w.PrivateKey)
 	if err != nil {
 		return nil, err

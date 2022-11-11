@@ -82,7 +82,7 @@ func (pmgr *pathWallet) signTxCallBack(ctx context.Context, req *logical.Request
 		return nil, err
 	}
 
-	tx, err := wallet.SignETH(&unsignTx, chainId)
+	tx, err := wallet.SignEthTx(&unsignTx, chainId)
 	if err != nil {
 		return nil, err
 	}
