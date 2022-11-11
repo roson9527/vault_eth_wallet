@@ -4,11 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/path/base"
-	"time"
 )
 
 const (
@@ -57,20 +55,36 @@ func (as *walletStorage) readWallet(ctx context.Context, req *logical.Request, n
 	return nil, fmt.Errorf("not support namespace %s", namespace)
 }
 
-func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request, data *framework.FieldData) (*modules.Wallet, error) {
-	overwrite := modules.Wallet{
-		Address:    data.Get(fieldPublicKey).(string),
-		PublicKey:  data.Get(fieldPublicKey).(string),
-		PrivateKey: data.Get(fieldPrivateKey).(string),
-		NameSpaces: data.Get(fieldNameSpaces).([]string),
-		CreateTime: time.Now().Unix(),
+func (as *walletStorage) updateWallet(ctx context.Context, req *logical.Request, overwrite *modules.Wallet) (*modules.Wallet, error) {
+	wallet, err := as.readWallet(ctx, req, nameSpaceGlobal, overwrite.Address)
+	if err != nil {
+		return nil, err
 	}
 
+	wallet.UpdateTime = overwrite.UpdateTime
+	wallet.NameSpaces = overwrite.NameSpaces
+
+	path := fmt.Sprintf(patternWallet, nameSpaceGlobal, overwrite.Address)
+	entry, err := logical.StorageEntryJSON(path, wallet)
+	if err != nil {
+		return nil, err
+	}
+
+	err = req.Storage.Put(ctx, entry)
+	if err != nil {
+		return nil, err
+	}
+
+	return overwrite, nil
+}
+
+func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request, overwrite *modules.Wallet) (*modules.Wallet, error) {
 	var walletEty *modules.Wallet
 	var err error
 
 	if overwrite.PrivateKey != "" {
-		walletEty = &overwrite
+		walletEty = overwrite
+
 	} else {
 		walletEty, err = base.GenerateKey()
 		if err != nil {
@@ -116,4 +130,8 @@ func (as *walletStorage) listWallet(ctx context.Context, req *logical.Request, n
 	}
 
 	return wallets, out, nil
+}
+
+func (as *walletStorage) deleteWallet(ctx context.Context, req *logical.Request, address string) error {
+	return req.Storage.Delete(ctx, fmt.Sprintf(patternWallet, nameSpaceGlobal, address))
 }
