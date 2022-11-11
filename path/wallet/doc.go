@@ -11,8 +11,8 @@ const (
 	pathCreateDesc = `Create a new account.`
 	pathReadSyn    = `Read an account.`
 	pathReadDesc   = `Read an account.`
-	pathSignSyn    = `SignETH data.`
-	pathSignDesc   = `SignETH data.`
+	pathSignSyn    = `SignEthTx data.`
+	pathSignDesc   = `SignEthTx data.`
 )
 
 const (
