@@ -15,6 +15,7 @@ type Wallet struct {
 	Address    string   `json:"address"`
 	UpdateTime int64    `json:"update_time"` // key pair update time
 	NameSpaces []string `json:"namespaces,omitempty"`
+	Network    string   `json:"network,omitempty"`
 }
 
 func (w *Wallet) SignEthTx(unsignTx *types.Transaction, chainId int64) (*types.Transaction, error) {

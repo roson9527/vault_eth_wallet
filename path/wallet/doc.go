@@ -1,7 +1,7 @@
 package wallet
 
 const (
-	nameSpaceGlobal = "global"
+	NameSpaceGlobal = "global"
 )
 
 const (
@@ -17,6 +17,7 @@ const (
 
 const (
 	fieldAddress    = "address"
+	fieldNetwork    = "network"
 	fieldUpdateTime = "update_time"
 	fieldNameSpace  = "namespace"
 	fieldNameSpaces = "namespaces"

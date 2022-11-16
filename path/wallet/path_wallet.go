@@ -13,6 +13,7 @@ func walletResponseData(wallet *modules.Wallet, extra bool) map[string]any {
 		fieldAddress:    wallet.Address,
 		fieldPublicKey:  wallet.PublicKey,
 		fieldUpdateTime: wallet.UpdateTime,
+		fieldNetwork:    wallet.Network,
 	}
 	if extra {
 		out[fieldPrivateKey] = wallet.PrivateKey

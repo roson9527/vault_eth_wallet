@@ -15,8 +15,8 @@ func (pmgr *pathWallet) createWalletPath(pattern string) *framework.Path {
 		Fields: map[string]*framework.FieldSchema{
 			fieldNameSpaces: {Type: framework.TypeCommaStringSlice, Default: []string{}},
 			fieldPrivateKey: {Type: framework.TypeString},
-			//fieldPublicKey:  {Type: framework.TypeString},
-			fieldAddress: {Type: framework.TypeString},
+			fieldAddress:    {Type: framework.TypeString},
+			fieldNetwork:    {Type: framework.TypeString, Default: "ETH"},
 		},
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
@@ -44,6 +44,7 @@ func (pmgr *pathWallet) createCallBack(ctx context.Context, req *logical.Request
 		}
 	}
 	overwrite.NameSpaces = data.Get(fieldNameSpaces).([]string)
+	overwrite.Network = data.Get(fieldNetwork).(string)
 
 	// 获取所有的钱包
 	wallet, err := pmgr.walletStorage.createWallet(ctx, req, overwrite)

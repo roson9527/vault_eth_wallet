@@ -119,5 +119,5 @@ func (s *FuncSign) IsMaxValueAllowed(value *big.Int) bool {
 	if !ok {
 		return false
 	}
-	return value.Cmp(maxV) < 0
+	return value.Cmp(maxV) <= 0
 }
