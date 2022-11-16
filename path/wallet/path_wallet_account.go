@@ -15,8 +15,9 @@ func (pmgr *pathWallet) readWalletPath(pattern string) *framework.Path {
 		Pattern: pattern,
 		// 字段
 		Fields: map[string]*framework.FieldSchema{
-			fieldNameSpace: {Type: framework.TypeString},
-			fieldAddress:   {Type: framework.TypeString},
+			fieldNameSpace:  {Type: framework.TypeString},
+			fieldAddress:    {Type: framework.TypeString},
+			fieldNameSpaces: {Type: framework.TypeCommaStringSlice, Default: []string{}},
 		},
 		ExistenceCheck: base.PathExistenceCheck,
 		// 执行的位置，有read，listWallet，createWallet，update
@@ -38,7 +39,7 @@ func (pmgr *pathWallet) readWalletPath(pattern string) *framework.Path {
 
 func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(fieldNameSpace).(string)
-	if namespace != nameSpaceGlobal {
+	if namespace != NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be deleted")
 	}
 	address := data.Get(fieldAddress).(string)

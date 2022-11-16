@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	patternWallet = "%s/wallet/%s"
+	PatternWallet = "%s/wallet/%s"
 )
 
 type walletStorage struct {
@@ -21,7 +21,7 @@ func newWalletStorage() *walletStorage {
 }
 
 func (as *walletStorage) readWallet(ctx context.Context, req *logical.Request, namespace, address string) (*modules.Wallet, error) {
-	path := fmt.Sprintf(patternWallet, nameSpaceGlobal, address)
+	path := fmt.Sprintf(PatternWallet, NameSpaceGlobal, address)
 	entry, err := req.Storage.Get(ctx, path)
 
 	if err != nil {
@@ -38,7 +38,7 @@ func (as *walletStorage) readWallet(ctx context.Context, req *logical.Request, n
 		return nil, fmt.Errorf("failed to deserialize wallet at %s", path)
 	}
 
-	if namespace == nameSpaceGlobal {
+	if namespace == NameSpaceGlobal {
 		return &wallet, nil
 	}
 
@@ -56,7 +56,7 @@ func (as *walletStorage) readWallet(ctx context.Context, req *logical.Request, n
 }
 
 func (as *walletStorage) updateWallet(ctx context.Context, req *logical.Request, overwrite *modules.Wallet) (*modules.Wallet, error) {
-	wallet, err := as.readWallet(ctx, req, nameSpaceGlobal, overwrite.Address)
+	wallet, err := as.readWallet(ctx, req, NameSpaceGlobal, overwrite.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (as *walletStorage) updateWallet(ctx context.Context, req *logical.Request,
 	wallet.UpdateTime = overwrite.UpdateTime
 	wallet.NameSpaces = overwrite.NameSpaces
 
-	path := fmt.Sprintf(patternWallet, nameSpaceGlobal, overwrite.Address)
+	path := fmt.Sprintf(PatternWallet, NameSpaceGlobal, overwrite.Address)
 	entry, err := logical.StorageEntryJSON(path, wallet)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request,
 		}
 	}
 
-	insertPath := fmt.Sprintf(patternWallet, nameSpaceGlobal, walletEty.Address)
+	insertPath := fmt.Sprintf(PatternWallet, NameSpaceGlobal, walletEty.Address)
 	entry, err := logical.StorageEntryJSON(insertPath, walletEty)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request,
 }
 
 func (as *walletStorage) listWallet(ctx context.Context, req *logical.Request, namespace string) (map[string]*modules.Wallet, []string, error) {
-	entries, err := req.Storage.List(ctx, fmt.Sprintf(patternWallet, nameSpaceGlobal, ""))
+	entries, err := req.Storage.List(ctx, fmt.Sprintf(PatternWallet, NameSpaceGlobal, ""))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -133,5 +133,5 @@ func (as *walletStorage) listWallet(ctx context.Context, req *logical.Request, n
 }
 
 func (as *walletStorage) deleteWallet(ctx context.Context, req *logical.Request, address string) error {
-	return req.Storage.Delete(ctx, fmt.Sprintf(patternWallet, nameSpaceGlobal, address))
+	return req.Storage.Delete(ctx, fmt.Sprintf(PatternWallet, NameSpaceGlobal, address))
 }
