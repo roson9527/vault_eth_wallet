@@ -15,6 +15,7 @@ func (pmgr *pathWallet) readWalletPath(pattern string) *framework.Path {
 		Pattern: pattern,
 		// 字段
 		Fields: map[string]*framework.FieldSchema{
+			fieldNetwork:    {Type: framework.TypeString, Default: ""},
 			fieldNameSpace:  {Type: framework.TypeString},
 			fieldAddress:    {Type: framework.TypeString},
 			fieldNameSpaces: {Type: framework.TypeCommaStringSlice, Default: []string{}},
@@ -42,12 +43,24 @@ func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request
 	if namespace != NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be deleted")
 	}
+
 	address := data.Get(fieldAddress).(string)
 	// 获取目标钱包
-	err := pmgr.walletStorage.deleteWallet(ctx, req, address)
+	oldWallet, err := pmgr.walletStorage.readWallet(ctx, req, NameSpaceGlobal, address)
 	if err != nil {
 		return nil, err
 	}
+
+	err = pmgr.walletStorage.deleteWallet(ctx, req, address)
+	if err != nil {
+		return nil, err
+	}
+
+	err = pmgr.walletStorage.updateAlias(ctx, req, address, oldWallet.NameSpaces, []string{})
+	if err != nil {
+		return nil, err
+	}
+
 	return &logical.Response{
 		Data: map[string]any{
 			fieldAddress: address,
@@ -56,15 +69,33 @@ func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request
 }
 
 func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	namespace := data.Get(fieldNameSpace).(string)
+	if namespace != NameSpaceGlobal {
+		return nil, errors.New("only global namespace can be updated")
+	}
+
 	overwrite := modules.Wallet{
 		Address:    data.Get(fieldAddress).(string),
 		NameSpaces: data.Get(fieldNameSpaces).([]string),
+		Network:    data.Get(fieldNetwork).(string),
 		UpdateTime: time.Now().Unix(),
 	}
+	// 获取目标钱包
+	oldWallet, err := pmgr.walletStorage.readWallet(ctx, req, NameSpaceGlobal, overwrite.Address)
+	if err != nil {
+		return nil, err
+	}
+
 	wallet, err := pmgr.walletStorage.updateWallet(ctx, req, &overwrite)
 	if err != nil {
 		return nil, err
 	}
+
+	err = pmgr.walletStorage.updateAlias(ctx, req, overwrite.Address, oldWallet.NameSpaces, overwrite.NameSpaces)
+	if err != nil {
+		return nil, err
+	}
+
 	return &logical.Response{
 		Data: walletResponseData(wallet, false),
 	}, nil

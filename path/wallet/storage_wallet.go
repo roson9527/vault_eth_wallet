@@ -14,6 +14,7 @@ const (
 )
 
 type walletStorage struct {
+	aliasStorage
 }
 
 func newWalletStorage() *walletStorage {
@@ -63,6 +64,9 @@ func (as *walletStorage) updateWallet(ctx context.Context, req *logical.Request,
 
 	wallet.UpdateTime = overwrite.UpdateTime
 	wallet.NameSpaces = overwrite.NameSpaces
+	if overwrite.Network != "" {
+		wallet.Network = overwrite.Network
+	}
 
 	path := fmt.Sprintf(PatternWallet, NameSpaceGlobal, overwrite.Address)
 	entry, err := logical.StorageEntryJSON(path, wallet)
@@ -84,7 +88,6 @@ func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request,
 
 	if overwrite.PrivateKey != "" {
 		walletEty = overwrite
-
 	} else {
 		walletEty, err = base.GenerateKey()
 		if err != nil {
@@ -94,9 +97,11 @@ func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request,
 		if overwrite.NameSpaces != nil && len(overwrite.NameSpaces) > 0 {
 			walletEty.NameSpaces = overwrite.NameSpaces
 		}
+		walletEty.Network = networkETH
 	}
 
 	insertPath := fmt.Sprintf(PatternWallet, NameSpaceGlobal, walletEty.Address)
+
 	entry, err := logical.StorageEntryJSON(insertPath, walletEty)
 	if err != nil {
 		return nil, err
@@ -110,26 +115,12 @@ func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request,
 	return walletEty, nil
 }
 
-func (as *walletStorage) listWallet(ctx context.Context, req *logical.Request, namespace string) (map[string]*modules.Wallet, []string, error) {
-	entries, err := req.Storage.List(ctx, fmt.Sprintf(PatternWallet, NameSpaceGlobal, ""))
-	if err != nil {
-		return nil, nil, err
+func (as *walletStorage) listWallet(ctx context.Context, req *logical.Request, namespace string) ([]string, error) {
+	if namespace == NameSpaceGlobal {
+		return req.Storage.List(ctx, fmt.Sprintf(PatternWallet, NameSpaceGlobal, ""))
 	}
 
-	out := make([]string, 0)
-	wallets := make(map[string]*modules.Wallet)
-
-	for _, entry := range entries {
-		wallet, subErr := as.readWallet(ctx, req, namespace, entry)
-		if subErr != nil {
-			continue
-		}
-		wallets[entry] = wallet
-		out = append(out, entry)
-
-	}
-
-	return wallets, out, nil
+	return req.Storage.List(ctx, fmt.Sprintf(PatternAlias, namespace, ""))
 }
 
 func (as *walletStorage) deleteWallet(ctx context.Context, req *logical.Request, address string) error {
