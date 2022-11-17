@@ -40,6 +40,7 @@ func (c *Client) ReadWallet(project, address string) (*Wallet, error) {
 	out := &Wallet{
 		Address:   sec.Data["address"].(string),
 		PublicKey: sec.Data["public_key"].(string),
+		Network:   sec.Data["network"].(string),
 	}
 	out.UpdateTime, _ = sec.Data["update_time"].(json.Number).Int64()
 	return out, nil

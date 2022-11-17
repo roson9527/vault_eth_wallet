@@ -16,7 +16,7 @@ func (pmgr *pathWallet) createWalletPath(pattern string) *framework.Path {
 			fieldNameSpaces: {Type: framework.TypeCommaStringSlice, Default: []string{}},
 			fieldPrivateKey: {Type: framework.TypeString},
 			fieldAddress:    {Type: framework.TypeString},
-			fieldNetwork:    {Type: framework.TypeString, Default: "ETH"},
+			fieldNetwork:    {Type: framework.TypeString, Default: networkETH},
 		},
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
@@ -51,6 +51,12 @@ func (pmgr *pathWallet) createCallBack(ctx context.Context, req *logical.Request
 	if err != nil {
 		return nil, err
 	}
+
+	err = pmgr.walletStorage.updateAlias(ctx, req, wallet.Address, []string{}, wallet.NameSpaces) // 更新别名
+	if err != nil {
+		return nil, err
+	}
+
 	return &logical.Response{
 		Data: walletResponseData(wallet, false),
 	}, nil

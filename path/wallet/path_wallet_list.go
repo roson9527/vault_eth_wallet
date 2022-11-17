@@ -33,7 +33,7 @@ func (pmgr *pathWallet) listCallBack(ctx context.Context, req *logical.Request, 
 	namespace := data.Get(fieldNameSpace).(string)
 
 	// 获取所有的钱包
-	_, out, err := pmgr.walletStorage.listWallet(ctx, req, namespace)
+	out, err := pmgr.walletStorage.listWallet(ctx, req, namespace)
 	hclog.Default().Info("listWallet", "namespace", namespace, "length", len(out))
 	if err != nil {
 		return nil, err

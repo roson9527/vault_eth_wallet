@@ -31,6 +31,15 @@ func (c *Client) DeleteWallet(address string) error {
 	return err
 }
 
+func (c *Client) UpdateWallet(wallet *Wallet) error {
+	payload := make(map[string]any)
+	payload[fieldNameSpaces] = wallet.NameSpaces
+	payload[fieldNetwork] = wallet.Network
+
+	_, err := c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(PatternWallet, NameSpaceGlobal, wallet.Address), payload)
+	return err
+}
+
 func (c *Client) WalletExport(project, address string) (*Wallet, error) {
 	sec, err := c.Meta.Logical().Read(c.conf.SecretPath + fmt.Sprintf(PatternWallet, project, address) + "/export")
 	if err != nil {

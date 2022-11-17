@@ -30,3 +30,7 @@ const (
 	fieldPolicyHCL  = "policy_hcl"
 	fieldPolicy     = "policy"
 )
+
+const (
+	networkETH = "ETH"
+)
