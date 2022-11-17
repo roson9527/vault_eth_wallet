@@ -1,7 +1,7 @@
 package wallet
 
 const (
-	nameSpaceGlobal = "global"
+	NameSpaceGlobal = "global"
 )
 
 const (
@@ -11,13 +11,14 @@ const (
 	pathCreateDesc = `Create a new account.`
 	pathReadSyn    = `Read an account.`
 	pathReadDesc   = `Read an account.`
-	pathSignSyn    = `SignETH data.`
-	pathSignDesc   = `SignETH data.`
+	pathSignSyn    = `SignEthTx data.`
+	pathSignDesc   = `SignEthTx data.`
 )
 
 const (
 	fieldAddress    = "address"
-	fieldCreateTime = "create_time"
+	fieldNetwork    = "network"
+	fieldUpdateTime = "update_time"
 	fieldNameSpace  = "namespace"
 	fieldNameSpaces = "namespaces"
 	fieldPrivateKey = "private_key"
@@ -28,4 +29,8 @@ const (
 	fieldChainType  = "chain_type"
 	fieldPolicyHCL  = "policy_hcl"
 	fieldPolicy     = "policy"
+)
+
+const (
+	networkETH = "ETH"
 )

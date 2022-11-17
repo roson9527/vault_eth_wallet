@@ -57,7 +57,8 @@ func NewBackend() (*modules.EthWalletBackend, error) {
 			SealWrapStorage: nil,
 		},
 		// 秘密类型列表，简化回调
-		Secrets: []*framework.Secret{},
+		Secrets:        []*framework.Secret{},
+		RunningVersion: "v0.3.0",
 		//// 初始化方法位置
 		//InitializeFunc:    nil,
 		//// 定时器回调

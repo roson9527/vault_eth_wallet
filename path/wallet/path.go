@@ -8,12 +8,12 @@ import (
 func Path() []*framework.Path {
 	pMgr := NewPathMgr()
 	return []*framework.Path{
-		pMgr.listWalletPath(fmt.Sprintf(patternWallet, framework.GenericNameRegex(fieldNameSpace), "?")),
-		pMgr.createWalletPath(fmt.Sprintf(patternWallet, nameSpaceGlobal, "new")),
-		pMgr.walletExportPath(fmt.Sprintf(patternWallet, framework.GenericNameRegex(fieldNameSpace), framework.GenericNameRegex(fieldAddress)) + "/export"),
-		pMgr.readWalletPath(fmt.Sprintf(patternWallet, framework.GenericNameRegex(fieldNameSpace), framework.GenericNameRegex(fieldAddress))),
+		pMgr.listWalletPath(fmt.Sprintf(PatternWallet, framework.GenericNameRegex(fieldNameSpace), "?")),
+		pMgr.createWalletPath(fmt.Sprintf(PatternWallet, NameSpaceGlobal, "new")),
+		pMgr.walletExportPath(fmt.Sprintf(PatternWallet, framework.GenericNameRegex(fieldNameSpace), framework.GenericNameRegex(fieldAddress)) + "/export"),
+		pMgr.readWalletPath(fmt.Sprintf(PatternWallet, framework.GenericNameRegex(fieldNameSpace), framework.GenericNameRegex(fieldAddress))),
 		pMgr.walletSignTxPath(
-			fmt.Sprintf(patternWallet,
+			fmt.Sprintf(PatternWallet,
 				framework.GenericNameRegex(fieldNameSpace),
 				framework.GenericNameRegex(fieldAddress)+"/sign_tx")),
 		pMgr.policyPath(fmt.Sprintf(patternPolicy, framework.GenericNameRegex(fieldNameSpace))),

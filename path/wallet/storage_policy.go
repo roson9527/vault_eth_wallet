@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/mitchellh/mapstructure"
 	"github.com/roson9527/vault_eth_wallet/modules"
-	"sync"
 )
 
 const (
@@ -17,7 +16,6 @@ const (
 )
 
 type policyStorage struct {
-	lock  sync.RWMutex
 	cache *modules.Policy
 }
 
@@ -28,9 +26,6 @@ func newPolicyStorage() *policyStorage {
 }
 
 func (as *policyStorage) readPolicy(ctx context.Context, req *logical.Request, namespace string) (*modules.Policy, error) {
-	as.lock.RLock()
-	defer as.lock.RUnlock()
-
 	path := fmt.Sprintf(patternPolicy, namespace)
 	entry, err := req.Storage.Get(ctx, path)
 
@@ -52,9 +47,6 @@ func (as *policyStorage) readPolicy(ctx context.Context, req *logical.Request, n
 }
 
 func (as *policyStorage) writePolicy(ctx context.Context, req *logical.Request, data *framework.FieldData) (*modules.Policy, error) {
-	as.lock.Lock()
-	defer as.lock.Unlock()
-
 	namespace := data.Get(fieldNameSpace).(string)
 	path := fmt.Sprintf(patternPolicy, namespace)
 	policyData := data.Get(fieldPolicy).(map[string]any)

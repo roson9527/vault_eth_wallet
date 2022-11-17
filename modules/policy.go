@@ -33,7 +33,10 @@ func (p *Policy) IsTxAllowed(tx *types.Transaction, chainId uint64) (bool, error
 	if contractConfig == nil {
 		return false, errors.New("contract to address not allowed")
 	}
-	if tx.Data() == nil {
+	if tx.Data() == nil || len(tx.Data()) == 0 {
+		if contractConfig.NativeTransfer {
+			return true, nil
+		}
 		return false, errors.New("contract.data is nil")
 	}
 	if len(tx.Data()) < 4 {
@@ -71,9 +74,10 @@ func (p *Policy) IsContractAllowed(contract string, chainId uint64) *ContractCon
 }
 
 type ContractConfig struct {
-	Address   string              `json:"address,omitempty" hcl:"address,omitempty" mapstructure:"address,omitempty"`       // 合约地址
-	FuncSigns map[string]FuncSign `json:"func_sign" hcl:"func_sign" mapstructure:"func_sign"`                               // 函数签名
-	ChainIds  []uint64            `json:"chain_ids,omitempty" hcl:"chain_ids,omitempty" mapstructure:"chain_ids,omitempty"` // 配置ChainID允许
+	Address        string              `json:"address,omitempty" hcl:"address,omitempty" mapstructure:"address,omitempty"`       // 合约地址
+	FuncSigns      map[string]FuncSign `json:"func_sign" hcl:"func_sign" mapstructure:"func_sign"`                               // 函数签名
+	NativeTransfer bool                `json:"native_transfer"`                                                                  // 原生转账
+	ChainIds       []uint64            `json:"chain_ids,omitempty" hcl:"chain_ids,omitempty" mapstructure:"chain_ids,omitempty"` // 配置ChainID允许
 }
 
 func (c *ContractConfig) IsContractAllowed(contract string, chainId uint64) bool {
@@ -119,5 +123,5 @@ func (s *FuncSign) IsMaxValueAllowed(value *big.Int) bool {
 	if !ok {
 		return false
 	}
-	return value.Cmp(maxV) < 0
+	return value.Cmp(maxV) <= 0
 }
