@@ -2,12 +2,13 @@ package wallet
 
 import (
 	"fmt"
+	"github.com/roson9527/vault_eth_wallet/path/storage"
 	"testing"
 )
 
 func TestPolicy_Read(t *testing.T) {
 	cli := createLocalClient()
-	sec, err := cli.Logical().Read("mock_web3/" + fmt.Sprintf(patternPolicy, "test_b"))
+	sec, err := cli.Logical().Read("mock_web3/" + fmt.Sprintf(storage.PatternPolicy, "test_b"))
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +37,7 @@ func TestPolicy_Write(t *testing.T) {
 			},
 		},
 	}
-	sec, err := cli.Logical().Write("mock_web3/"+fmt.Sprintf(patternPolicy, "test_b"), payload)
+	sec, err := cli.Logical().Write("mock_web3/"+fmt.Sprintf(storage.PatternPolicy, "test_b"), payload)
 	if err != nil {
 		panic(err)
 	}

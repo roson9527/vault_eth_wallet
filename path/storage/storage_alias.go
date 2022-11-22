@@ -1,4 +1,4 @@
-package wallet
+package storage
 
 import (
 	"context"
@@ -14,7 +14,11 @@ const (
 type aliasStorage struct {
 }
 
-func (as *aliasStorage) updateAlias(ctx context.Context, req *logical.Request, address string, oldNS, newNS []string) error {
+func newAliasStorage() *aliasStorage {
+	return &aliasStorage{}
+}
+
+func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, address string, oldNS, newNS []string) error {
 	// 更新所有的alias指向
 	// 1、删除在新的namespace中不存在的alias
 	waitDel := make([]string, 0)

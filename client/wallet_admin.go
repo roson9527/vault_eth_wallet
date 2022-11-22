@@ -21,6 +21,7 @@ func (c *Client) CreateWallet(wallet *Wallet) (*Wallet, error) {
 	out := &Wallet{
 		Address:   sec.Data[fieldAddress].(string),
 		PublicKey: sec.Data[fieldPublicKey].(string),
+		Network:   sec.Data[fieldNetwork].(string),
 	}
 	out.UpdateTime, _ = sec.Data[fieldUpdateTime].(json.Number).Int64()
 	return out, nil

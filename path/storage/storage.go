@@ -1,0 +1,21 @@
+package storage
+
+type Core struct {
+	Wallet *walletStorage
+	Policy *policyStorage
+	Alias  *aliasStorage
+}
+
+var core = newCore()
+
+func newCore() *Core {
+	return &Core{
+		Alias:  newAliasStorage(),
+		Wallet: newWalletStorage(),
+		Policy: newPolicyStorage(),
+	}
+}
+
+func NewCore() *Core {
+	return core
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
 	"math/big"
 )
 
@@ -15,11 +16,11 @@ func (pmgr *pathWallet) walletSignTxPath(pattern string) *framework.Path {
 		Pattern: pattern,
 		// 字段
 		Fields: map[string]*framework.FieldSchema{
-			fieldNameSpace: {Type: framework.TypeString, Required: true},
-			fieldAddress:   {Type: framework.TypeString, Required: true},
-			fieldChainType: {Type: framework.TypeString, Default: "ETH"},
-			fieldTxBinary:  {Type: framework.TypeString},
-			fieldChainId:   {Type: framework.TypeInt64, Default: int64(1)},
+			doc.FieldNameSpace: {Type: framework.TypeString, Required: true},
+			doc.FieldAddress:   {Type: framework.TypeString, Required: true},
+			doc.FieldChainType: {Type: framework.TypeString, Default: "ETH"},
+			doc.FieldTxBinary:  {Type: framework.TypeString},
+			doc.FieldChainId:   {Type: framework.TypeInt64, Default: int64(1)},
 		},
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
@@ -30,16 +31,16 @@ func (pmgr *pathWallet) walletSignTxPath(pattern string) *framework.Path {
 				Callback: pmgr.signTxCallBack,
 			},
 		},
-		HelpSynopsis:    pathSignSyn,
-		HelpDescription: pathSignDesc,
+		HelpSynopsis:    doc.PathSignSyn,
+		HelpDescription: doc.PathSignDesc,
 	}
 }
 
 func (pmgr *pathWallet) signTxCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	namespace := data.Get(fieldNameSpace).(string)
-	address := data.Get(fieldAddress).(string)
+	namespace := data.Get(doc.FieldNameSpace).(string)
+	address := data.Get(doc.FieldAddress).(string)
 
-	binaryStr := data.Get(fieldTxBinary).(string)
+	binaryStr := data.Get(doc.FieldTxBinary).(string)
 	var unsignTx types.Transaction
 	binary, err := hexutil.Decode(binaryStr)
 	if err != nil {
@@ -51,9 +52,9 @@ func (pmgr *pathWallet) signTxCallBack(ctx context.Context, req *logical.Request
 	}
 
 	// TODO：ChainId 约束: Config中设置
-	chainId := data.Get(fieldChainId).(int64)
+	chainId := data.Get(doc.FieldChainId).(int64)
 
-	policy, err := pmgr.policyStorage.readPolicy(ctx, req, namespace)
+	policy, err := pmgr.Storage.Policy.Read(ctx, req, namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +78,7 @@ func (pmgr *pathWallet) signTxCallBack(ctx context.Context, req *logical.Request
 	}
 
 	// 获取目标钱包
-	wallet, err := pmgr.walletStorage.readWallet(ctx, req, namespace, address)
+	wallet, err := pmgr.Storage.Wallet.Read(ctx, req, namespace, address)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +103,7 @@ func ethTxResponseData(tx *types.Transaction) (map[string]any, error) {
 		return nil, err
 	}
 	return map[string]any{
-		fieldTxBinary: hexutil.Encode(binary),
-		fieldTxHash:   tx.Hash().Hex(),
+		doc.FieldTxBinary: hexutil.Encode(binary),
+		doc.FieldTxHash:   tx.Hash().Hex(),
 	}, nil
 }

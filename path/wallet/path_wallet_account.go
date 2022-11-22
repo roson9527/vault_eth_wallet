@@ -7,18 +7,20 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/path/base"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
 	"time"
 )
 
-func (pmgr *pathWallet) readWalletPath(pattern string) *framework.Path {
+func (pmgr *pathWallet) walletActionPath(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
 		Fields: map[string]*framework.FieldSchema{
-			fieldNetwork:    {Type: framework.TypeString, Default: ""},
-			fieldNameSpace:  {Type: framework.TypeString},
-			fieldAddress:    {Type: framework.TypeString},
-			fieldNameSpaces: {Type: framework.TypeCommaStringSlice, Default: []string{}},
+			doc.FieldNetwork:    {Type: framework.TypeString, Default: ""},
+			doc.FieldNameSpace:  {Type: framework.TypeString},
+			doc.FieldAddress:    {Type: framework.TypeString},
+			doc.FieldNameSpaces: {Type: framework.TypeCommaStringSlice, Default: []string{}},
+			doc.FieldExtra:      {Type: framework.TypeMap, Default: map[string]any{}},
 		},
 		ExistenceCheck: base.PathExistenceCheck,
 		// 执行的位置，有read，listWallet，createWallet，update
@@ -33,65 +35,70 @@ func (pmgr *pathWallet) readWalletPath(pattern string) *framework.Path {
 				Callback: pmgr.deleteCallBack,
 			},
 		},
-		HelpSynopsis:    pathReadSyn,
-		HelpDescription: pathReadDesc,
+		HelpSynopsis:    doc.PathReadSyn,
+		HelpDescription: doc.PathReadDesc,
 	}
 }
 
 func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	namespace := data.Get(fieldNameSpace).(string)
-	if namespace != NameSpaceGlobal {
+	namespace := data.Get(doc.FieldNameSpace).(string)
+	if namespace != doc.NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be deleted")
 	}
 
-	address := data.Get(fieldAddress).(string)
+	address := data.Get(doc.FieldAddress).(string)
 	// 获取目标钱包
-	oldWallet, err := pmgr.walletStorage.readWallet(ctx, req, NameSpaceGlobal, address)
+	oldWallet, err := pmgr.Storage.Wallet.Read(ctx, req, doc.NameSpaceGlobal, address)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.walletStorage.deleteWallet(ctx, req, address)
+	err = pmgr.Storage.Wallet.Delete(ctx, req, address)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.walletStorage.updateAlias(ctx, req, address, oldWallet.NameSpaces, []string{})
+	err = pmgr.Storage.Alias.Update(ctx, req, address, oldWallet.NameSpaces, []string{})
 	if err != nil {
 		return nil, err
 	}
 
 	return &logical.Response{
 		Data: map[string]any{
-			fieldAddress: address,
+			doc.FieldAddress: address,
 		},
 	}, nil
 }
 
 func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	namespace := data.Get(fieldNameSpace).(string)
-	if namespace != NameSpaceGlobal {
+	namespace := data.Get(doc.FieldNameSpace).(string)
+	if namespace != doc.NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be updated")
 	}
 
 	overwrite := modules.Wallet{
-		Address:    data.Get(fieldAddress).(string),
-		NameSpaces: data.Get(fieldNameSpaces).([]string),
-		Network:    data.Get(fieldNetwork).(string),
+		Address:    data.Get(doc.FieldAddress).(string),
+		NameSpaces: data.Get(doc.FieldNameSpaces).([]string),
+		Network:    data.Get(doc.FieldNetwork).(string),
 		UpdateTime: time.Now().Unix(),
 	}
+
+	if err := overwrite.DecodeExtra(data.Get(doc.FieldExtra).(map[string]any)); err != nil {
+		return nil, err
+	}
+
 	// 获取目标钱包
-	oldWallet, err := pmgr.walletStorage.readWallet(ctx, req, NameSpaceGlobal, overwrite.Address)
+	oldWallet, err := pmgr.Storage.Wallet.Read(ctx, req, doc.NameSpaceGlobal, overwrite.Address)
 	if err != nil {
 		return nil, err
 	}
 
-	wallet, err := pmgr.walletStorage.updateWallet(ctx, req, &overwrite)
+	wallet, err := pmgr.Storage.Wallet.Update(ctx, req, &overwrite)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.walletStorage.updateAlias(ctx, req, overwrite.Address, oldWallet.NameSpaces, overwrite.NameSpaces)
+	err = pmgr.Storage.Alias.Update(ctx, req, overwrite.Address, oldWallet.NameSpaces, overwrite.NameSpaces)
 	if err != nil {
 		return nil, err
 	}
@@ -102,10 +109,10 @@ func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request
 }
 
 func (pmgr *pathWallet) readCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	namespace := data.Get(fieldNameSpace).(string)
-	address := data.Get(fieldAddress).(string)
+	namespace := data.Get(doc.FieldNameSpace).(string)
+	address := data.Get(doc.FieldAddress).(string)
 	// 获取目标钱包
-	wallet, err := pmgr.walletStorage.readWallet(ctx, req, namespace, address)
+	wallet, err := pmgr.Storage.Wallet.Read(ctx, req, namespace, address)
 	if err != nil {
 		return nil, err
 	}

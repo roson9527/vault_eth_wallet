@@ -1,4 +1,4 @@
-package wallet
+package storage
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/path/base"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
 )
 
 const (
@@ -14,15 +15,14 @@ const (
 )
 
 type walletStorage struct {
-	aliasStorage
 }
 
 func newWalletStorage() *walletStorage {
 	return &walletStorage{}
 }
 
-func (as *walletStorage) readWallet(ctx context.Context, req *logical.Request, namespace, address string) (*modules.Wallet, error) {
-	path := fmt.Sprintf(PatternWallet, NameSpaceGlobal, address)
+func (as *walletStorage) Read(ctx context.Context, req *logical.Request, namespace, address string) (*modules.Wallet, error) {
+	path := fmt.Sprintf(PatternWallet, doc.NameSpaceGlobal, address)
 	entry, err := req.Storage.Get(ctx, path)
 
 	if err != nil {
@@ -39,7 +39,7 @@ func (as *walletStorage) readWallet(ctx context.Context, req *logical.Request, n
 		return nil, fmt.Errorf("failed to deserialize wallet at %s", path)
 	}
 
-	if namespace == NameSpaceGlobal {
+	if namespace == doc.NameSpaceGlobal {
 		return &wallet, nil
 	}
 
@@ -56,19 +56,20 @@ func (as *walletStorage) readWallet(ctx context.Context, req *logical.Request, n
 	return nil, fmt.Errorf("not support namespace %s", namespace)
 }
 
-func (as *walletStorage) updateWallet(ctx context.Context, req *logical.Request, overwrite *modules.Wallet) (*modules.Wallet, error) {
-	wallet, err := as.readWallet(ctx, req, NameSpaceGlobal, overwrite.Address)
+func (as *walletStorage) Update(ctx context.Context, req *logical.Request, overwrite *modules.Wallet) (*modules.Wallet, error) {
+	wallet, err := as.Read(ctx, req, doc.NameSpaceGlobal, overwrite.Address)
 	if err != nil {
 		return nil, err
 	}
 
 	wallet.UpdateTime = overwrite.UpdateTime
 	wallet.NameSpaces = overwrite.NameSpaces
+	wallet.Extra = overwrite.Extra
 	if overwrite.Network != "" {
 		wallet.Network = overwrite.Network
 	}
 
-	path := fmt.Sprintf(PatternWallet, NameSpaceGlobal, overwrite.Address)
+	path := fmt.Sprintf(PatternWallet, doc.NameSpaceGlobal, overwrite.Address)
 	entry, err := logical.StorageEntryJSON(path, wallet)
 	if err != nil {
 		return nil, err
@@ -82,7 +83,7 @@ func (as *walletStorage) updateWallet(ctx context.Context, req *logical.Request,
 	return overwrite, nil
 }
 
-func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request, overwrite *modules.Wallet) (*modules.Wallet, error) {
+func (as *walletStorage) Create(ctx context.Context, req *logical.Request, overwrite *modules.Wallet) (*modules.Wallet, error) {
 	var walletEty *modules.Wallet
 	var err error
 
@@ -97,10 +98,11 @@ func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request,
 		if overwrite.NameSpaces != nil && len(overwrite.NameSpaces) > 0 {
 			walletEty.NameSpaces = overwrite.NameSpaces
 		}
-		walletEty.Network = networkETH
+		walletEty.Network = doc.NetworkETH
+		walletEty.Extra = overwrite.Extra
 	}
 
-	insertPath := fmt.Sprintf(PatternWallet, NameSpaceGlobal, walletEty.Address)
+	insertPath := fmt.Sprintf(PatternWallet, doc.NameSpaceGlobal, walletEty.Address)
 
 	entry, err := logical.StorageEntryJSON(insertPath, walletEty)
 	if err != nil {
@@ -115,14 +117,14 @@ func (as *walletStorage) createWallet(ctx context.Context, req *logical.Request,
 	return walletEty, nil
 }
 
-func (as *walletStorage) listWallet(ctx context.Context, req *logical.Request, namespace string) ([]string, error) {
-	if namespace == NameSpaceGlobal {
-		return req.Storage.List(ctx, fmt.Sprintf(PatternWallet, NameSpaceGlobal, ""))
+func (as *walletStorage) List(ctx context.Context, req *logical.Request, namespace string) ([]string, error) {
+	if namespace == doc.NameSpaceGlobal {
+		return req.Storage.List(ctx, fmt.Sprintf(PatternWallet, doc.NameSpaceGlobal, ""))
 	}
 
 	return req.Storage.List(ctx, fmt.Sprintf(PatternAlias, namespace, ""))
 }
 
-func (as *walletStorage) deleteWallet(ctx context.Context, req *logical.Request, address string) error {
-	return req.Storage.Delete(ctx, fmt.Sprintf(PatternWallet, NameSpaceGlobal, address))
+func (as *walletStorage) Delete(ctx context.Context, req *logical.Request, address string) error {
+	return req.Storage.Delete(ctx, fmt.Sprintf(PatternWallet, doc.NameSpaceGlobal, address))
 }

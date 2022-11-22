@@ -1,4 +1,4 @@
-package wallet
+package policy
 
 import (
 	"context"
@@ -7,23 +7,25 @@ import (
 	"github.com/fatih/structs"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
+	"github.com/roson9527/vault_eth_wallet/path/storage"
 )
 
 type pathPolicy struct {
-	*storage
+	Storage *storage.Core
 }
 
 func (pmgr *pathPolicy) policyPath(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		Fields: map[string]*framework.FieldSchema{
-			fieldNameSpace: {
+			doc.FieldNameSpace: {
 				Type:        framework.TypeString,
 				Description: "Namespace",
 				Required:    true,
 			},
-			fieldPolicyHCL: {Type: framework.TypeString, Default: ""},
-			fieldPolicy:    {Type: framework.TypeMap, Default: map[string]any{}},
+			doc.FieldPolicyHCL: {Type: framework.TypeString, Default: ""},
+			doc.FieldPolicy:    {Type: framework.TypeMap, Default: map[string]any{}},
 		},
 
 		Operations: map[logical.Operation]framework.OperationHandler{
@@ -43,7 +45,7 @@ func (pmgr *pathPolicy) policyPath(pattern string) *framework.Path {
 }
 
 func (pmgr *pathPolicy) updateCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	policy, err := pmgr.policyStorage.writePolicy(ctx, req, data)
+	policy, err := pmgr.Storage.Policy.Write(ctx, req, data)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +54,9 @@ func (pmgr *pathPolicy) updateCallBack(ctx context.Context, req *logical.Request
 }
 
 func (pmgr *pathPolicy) readCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	namespace := data.Get(fieldNameSpace).(string)
+	namespace := data.Get(doc.FieldNameSpace).(string)
 	// TODO:做policy合并 global policy + namespace policy
-	policy, err := pmgr.policyStorage.readPolicy(ctx, req, namespace)
+	policy, err := pmgr.Storage.Policy.Read(ctx, req, namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +76,7 @@ func (pmgr *pathPolicy) readCallBack(ctx context.Context, req *logical.Request, 
 
 	return &logical.Response{
 		Data: map[string]any{
-			"policy": payload,
+			doc.FieldPolicy: payload,
 		},
 	}, nil
 }

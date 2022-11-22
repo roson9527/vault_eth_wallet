@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
 )
 
 func (pmgr *pathWallet) listWalletPath(pattern string) *framework.Path {
@@ -12,7 +13,7 @@ func (pmgr *pathWallet) listWalletPath(pattern string) *framework.Path {
 		Pattern: pattern,
 		// 字段
 		Fields: map[string]*framework.FieldSchema{
-			fieldNameSpace: {
+			doc.FieldNameSpace: {
 				Type:        framework.TypeString,
 				Description: "Namespace",
 				Required:    true,
@@ -24,16 +25,16 @@ func (pmgr *pathWallet) listWalletPath(pattern string) *framework.Path {
 				Callback: pmgr.listCallBack,
 			},
 		},
-		HelpSynopsis:    pathListSyn,
-		HelpDescription: pathListDesc,
+		HelpSynopsis:    doc.PathListSyn,
+		HelpDescription: doc.PathListDesc,
 	}
 }
 
 func (pmgr *pathWallet) listCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	namespace := data.Get(fieldNameSpace).(string)
+	namespace := data.Get(doc.FieldNameSpace).(string)
 
 	// 获取所有的钱包
-	out, err := pmgr.walletStorage.listWallet(ctx, req, namespace)
+	out, err := pmgr.Storage.Wallet.List(ctx, req, namespace)
 	hclog.Default().Info("listWallet", "namespace", namespace, "length", len(out))
 	if err != nil {
 		return nil, err

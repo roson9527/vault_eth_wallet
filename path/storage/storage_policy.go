@@ -1,4 +1,4 @@
-package wallet
+package storage
 
 import (
 	"context"
@@ -9,24 +9,22 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/mitchellh/mapstructure"
 	"github.com/roson9527/vault_eth_wallet/modules"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
 )
 
 const (
-	patternPolicy = "%s/policy"
+	PatternPolicy = "%s/policy"
 )
 
 type policyStorage struct {
-	cache *modules.Policy
 }
 
 func newPolicyStorage() *policyStorage {
-	return &policyStorage{
-		cache: &modules.Policy{},
-	}
+	return &policyStorage{}
 }
 
-func (as *policyStorage) readPolicy(ctx context.Context, req *logical.Request, namespace string) (*modules.Policy, error) {
-	path := fmt.Sprintf(patternPolicy, namespace)
+func (as *policyStorage) Read(ctx context.Context, req *logical.Request, namespace string) (*modules.Policy, error) {
+	path := fmt.Sprintf(PatternPolicy, namespace)
 	entry, err := req.Storage.Get(ctx, path)
 
 	if err != nil {
@@ -46,11 +44,11 @@ func (as *policyStorage) readPolicy(ctx context.Context, req *logical.Request, n
 	return &policy, nil
 }
 
-func (as *policyStorage) writePolicy(ctx context.Context, req *logical.Request, data *framework.FieldData) (*modules.Policy, error) {
-	namespace := data.Get(fieldNameSpace).(string)
-	path := fmt.Sprintf(patternPolicy, namespace)
-	policyData := data.Get(fieldPolicy).(map[string]any)
-	policyHCL := data.Get(fieldPolicyHCL).(string)
+func (as *policyStorage) Write(ctx context.Context, req *logical.Request, data *framework.FieldData) (*modules.Policy, error) {
+	namespace := data.Get(doc.FieldNameSpace).(string)
+	path := fmt.Sprintf(PatternPolicy, namespace)
+	policyData := data.Get(doc.FieldPolicy).(map[string]any)
+	policyHCL := data.Get(doc.FieldPolicyHCL).(string)
 
 	var p modules.Policy
 	switch policyHCL {
@@ -68,7 +66,6 @@ func (as *policyStorage) writePolicy(ctx context.Context, req *logical.Request, 
 		}
 	}
 
-	//hclog.Default().Info("data", p)
 	entry, err := logical.StorageEntryJSON(path, p)
 
 	err = req.Storage.Put(ctx, entry)
