@@ -4,45 +4,47 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/roson9527/vault_eth_wallet/modules"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
+	"github.com/roson9527/vault_eth_wallet/path/storage"
 )
 
-func (c *Client) CreateWallet(wallet *Wallet) (*Wallet, error) {
+func (c *Client) CreateWallet(wallet *modules.Wallet) (*modules.Wallet, error) {
 	payload := make(map[string]any)
 	if wallet != nil {
-		payload[fieldNameSpaces] = wallet.NameSpaces
-		payload[fieldPrivateKey] = wallet.PrivateKey
+		payload[doc.FieldNameSpaces] = wallet.NameSpaces
+		payload[doc.FieldPrivateKey] = wallet.PrivateKey
 	}
 
-	sec, err := c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(PatternWallet, NameSpaceGlobal, "new"), payload)
+	sec, err := c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(storage.PatternWallet, doc.NameSpaceGlobal, doc.PathSubNew), payload)
 	if err != nil {
 		panic(err)
 	}
 
-	out := &Wallet{
-		Address:   sec.Data[fieldAddress].(string),
-		PublicKey: sec.Data[fieldPublicKey].(string),
-		Network:   sec.Data[fieldNetwork].(string),
+	out := &modules.Wallet{
+		Address:   sec.Data[doc.FieldAddress].(string),
+		PublicKey: sec.Data[doc.FieldPublicKey].(string),
+		Network:   sec.Data[doc.FieldNetwork].(string),
 	}
-	out.UpdateTime, _ = sec.Data[fieldUpdateTime].(json.Number).Int64()
+	out.UpdateTime, _ = sec.Data[doc.FieldUpdateTime].(json.Number).Int64()
 	return out, nil
 }
 
 func (c *Client) DeleteWallet(address string) error {
-	_, err := c.Meta.Logical().Delete(c.conf.SecretPath + fmt.Sprintf(PatternWallet, NameSpaceGlobal, address))
+	_, err := c.Meta.Logical().Delete(c.conf.SecretPath + fmt.Sprintf(storage.PatternWallet, doc.NameSpaceGlobal, address))
 	return err
 }
 
-func (c *Client) UpdateWallet(wallet *Wallet) error {
+func (c *Client) UpdateWallet(wallet *modules.Wallet) error {
 	payload := make(map[string]any)
-	payload[fieldNameSpaces] = wallet.NameSpaces
-	payload[fieldNetwork] = wallet.Network
+	payload[doc.FieldNameSpaces] = wallet.NameSpaces
+	payload[doc.FieldNetwork] = wallet.Network
 
-	_, err := c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(PatternWallet, NameSpaceGlobal, wallet.Address), payload)
+	_, err := c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(storage.PatternWallet, doc.NameSpaceGlobal, wallet.Address), payload)
 	return err
 }
 
-func (c *Client) WalletExport(project, address string) (*Wallet, error) {
-	sec, err := c.Meta.Logical().Read(c.conf.SecretPath + fmt.Sprintf(PatternWallet, project, address) + "/export")
+func (c *Client) WalletExport(project, address string) (*modules.Wallet, error) {
+	sec, err := c.Meta.Logical().Read(c.conf.SecretPath + fmt.Sprintf(storage.PatternWallet, project, address) + "/export")
 	if err != nil {
 		return nil, err
 	}
@@ -53,18 +55,22 @@ func (c *Client) WalletExport(project, address string) (*Wallet, error) {
 	}
 
 	namespaces := make([]string, 0)
-	for _, v := range sec.Data[fieldNameSpaces].([]any) {
+	for _, v := range sec.Data[doc.FieldNameSpaces].([]any) {
 		namespaces = append(namespaces, fmt.Sprintf("%s", v))
 	}
 
-	out := &Wallet{
-		Address:    sec.Data[fieldAddress].(string),
-		PublicKey:  sec.Data[fieldPublicKey].(string),
-		PrivateKey: sec.Data[fieldPrivateKey].(string),
+	out := &modules.Wallet{
+		Address:    sec.Data[doc.FieldAddress].(string),
+		PublicKey:  sec.Data[doc.FieldPublicKey].(string),
+		PrivateKey: sec.Data[doc.FieldPrivateKey].(string),
 		NameSpaces: namespaces,
-		Network:    sec.Data[fieldNetwork].(string),
+		Network:    sec.Data[doc.FieldNetwork].(string),
 	}
-	out.UpdateTime, _ = sec.Data[fieldUpdateTime].(json.Number).Int64()
+	out.UpdateTime, _ = sec.Data[doc.FieldUpdateTime].(json.Number).Int64()
+	if err = out.Extra.Decode(sec.Data[doc.FieldExtra].(map[string]any)); err != nil {
+		return nil, err
+	}
+
 	return out, nil
 }
 
@@ -80,14 +86,14 @@ func (c *Client) UpdatePolicy(project string, policy *modules.Policy) error {
 	}
 
 	payload := make(map[string]any)
-	payload[fieldPolicy] = policyMap
+	payload[doc.FieldPolicy] = policyMap
 
-	_, err = c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(PatternPolicy, project), payload)
+	_, err = c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(storage.PatternPolicy, project), payload)
 	return err
 }
 
 func (c *Client) ReadPolicy(project string) (*modules.Policy, error) {
-	sec, err := c.Meta.Logical().Read(c.conf.SecretPath + fmt.Sprintf(PatternPolicy, project))
+	sec, err := c.Meta.Logical().Read(c.conf.SecretPath + fmt.Sprintf(storage.PatternPolicy, project))
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +104,7 @@ func (c *Client) ReadPolicy(project string) (*modules.Policy, error) {
 	}
 
 	//fmt.Println(sec.Data[fieldPolicy])
-	data, err := json.Marshal(sec.Data[fieldPolicy])
+	data, err := json.Marshal(sec.Data[doc.FieldPolicy])
 	if err != nil {
 		return nil, err
 	}

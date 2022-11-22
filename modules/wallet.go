@@ -25,8 +25,8 @@ type Wallet struct {
 	Extra      WalletExtra `json:"extra"`                // 用于标签scan
 }
 
-func (w *Wallet) DecodeExtra(m map[string]any) error {
-	err := mapstructure.Decode(m, &w.Extra)
+func (w *WalletExtra) Decode(m map[string]any) error {
+	err := mapstructure.Decode(m, w)
 	return err
 }
 

@@ -47,7 +47,7 @@ func (pmgr *pathWallet) createCallBack(ctx context.Context, req *logical.Request
 	}
 	overwrite.NameSpaces = data.Get(doc.FieldNameSpaces).([]string)
 	overwrite.Network = data.Get(doc.FieldNetwork).(string)
-	if err = overwrite.DecodeExtra(data.Get(doc.FieldExtra).(map[string]any)); err != nil {
+	if err = overwrite.Extra.Decode(data.Get(doc.FieldExtra).(map[string]any)); err != nil {
 		return nil, err
 	}
 

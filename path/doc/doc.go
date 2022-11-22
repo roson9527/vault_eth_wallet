@@ -16,6 +16,12 @@ const (
 )
 
 const (
+	PathSubSignTx = "/sign_tx"
+	PathSubExport = "/export"
+	PathSubNew    = "new"
+)
+
+const (
 	FieldAddress    = "address"
 	FieldNetwork    = "network"
 	FieldExtra      = "extra"
@@ -29,6 +35,7 @@ const (
 	FieldChainId    = "chain_id"
 	FieldChainType  = "chain_type"
 	FieldPolicyHCL  = "policy_hcl"
+	FieldKeys       = "keys"
 	FieldPolicy     = "policy"
 )
 

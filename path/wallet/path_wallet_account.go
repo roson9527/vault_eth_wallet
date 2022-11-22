@@ -83,7 +83,7 @@ func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request
 		UpdateTime: time.Now().Unix(),
 	}
 
-	if err := overwrite.DecodeExtra(data.Get(doc.FieldExtra).(map[string]any)); err != nil {
+	if err := overwrite.Extra.Decode(data.Get(doc.FieldExtra).(map[string]any)); err != nil {
 		return nil, err
 	}
 
