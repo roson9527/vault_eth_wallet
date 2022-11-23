@@ -11,7 +11,12 @@ import (
 	"time"
 )
 
-func GenerateKey() (*modules.Wallet, error) {
+var CryptoETH = &cryptoETH{}
+
+type cryptoETH struct {
+}
+
+func (c *cryptoETH) GenerateKey() (*modules.Wallet, error) {
 	privateKey, err := crypto.GenerateKey()
 	if err != nil {
 		return nil, err
@@ -39,7 +44,7 @@ func GenerateKey() (*modules.Wallet, error) {
 	}, nil
 }
 
-func PrivateToWallet(pri string) (*modules.Wallet, error) {
+func (c *cryptoETH) PrivateToWallet(pri string) (*modules.Wallet, error) {
 	privateKey, err := crypto.HexToECDSA(pri)
 	if err != nil {
 		return nil, errors.New("private key error")

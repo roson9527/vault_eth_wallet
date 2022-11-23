@@ -9,25 +9,25 @@ import (
 	"math/big"
 )
 
-type WalletExtra struct {
+type Extra struct {
 	IsLock bool     `json:"is_lock" mapstructure:"is_lock"`
 	Tags   []string `json:"tags" mapstructure:"tags"`
 }
 
-// Wallet is an Ethereum Wallet
-type Wallet struct {
-	PrivateKey string      `json:"private_key"`          // PrivateKey is the private key of the wallet
-	PublicKey  string      `json:"public_key,omitempty"` // PublicKey is the public key of the wallet
-	Address    string      `json:"address"`              // Address is the address of the wallet
-	UpdateTime int64       `json:"update_time"`          // key pair update time
-	NameSpaces []string    `json:"namespaces,omitempty"` // 用于项目区分
-	Network    string      `json:"network,omitempty"`    // 网络区分
-	Extra      WalletExtra `json:"extra"`                // 用于标签scan
-}
-
-func (w *WalletExtra) Decode(m map[string]any) error {
+func (w *Extra) Decode(m map[string]any) error {
 	err := mapstructure.Decode(m, w)
 	return err
+}
+
+// Wallet is an Ethereum Wallet
+type Wallet struct {
+	PrivateKey string   `json:"private_key"`          // PrivateKey is the private key of the wallet
+	PublicKey  string   `json:"public_key,omitempty"` // PublicKey is the public key of the wallet
+	Address    string   `json:"address"`              // Address is the address of the wallet
+	UpdateTime int64    `json:"update_time"`          // key pair update time
+	NameSpaces []string `json:"namespaces,omitempty"` // 用于项目区分
+	Network    string   `json:"network,omitempty"`    // 网络区分
+	Extra      Extra    `json:"extra"`                // 用于标签scan
 }
 
 func (w *Wallet) SignEthTx(unsignTx *types.Transaction, chainId int64) (*types.Transaction, error) {

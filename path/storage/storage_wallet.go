@@ -90,7 +90,7 @@ func (as *walletStorage) Create(ctx context.Context, req *logical.Request, overw
 	if overwrite.PrivateKey != "" {
 		walletEty = overwrite
 	} else {
-		walletEty, err = base.GenerateKey()
+		walletEty, err = base.CryptoETH.GenerateKey()
 		if err != nil {
 			return nil, err
 		}

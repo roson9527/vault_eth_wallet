@@ -40,7 +40,7 @@ func (pmgr *pathWallet) createCallBack(ctx context.Context, req *logical.Request
 
 	privateKey := data.Get(doc.FieldPrivateKey).(string)
 	if privateKey != "" {
-		overwrite, err = base.PrivateToWallet(privateKey)
+		overwrite, err = base.CryptoETH.PrivateToWallet(privateKey)
 		if err != nil {
 			return nil, err
 		}
