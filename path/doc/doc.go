@@ -22,6 +22,7 @@ const (
 )
 
 const (
+	FieldGAuth      = "g_auth"
 	FieldSocialID   = "social_id"
 	FieldApp        = "app"
 	FieldUser       = "user"
