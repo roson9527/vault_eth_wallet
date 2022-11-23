@@ -11,7 +11,7 @@ import (
 	"math/big"
 )
 
-func (pmgr *pathWallet) walletSignTxPath(pattern string) *framework.Path {
+func (h *handler) signTx(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
@@ -25,10 +25,10 @@ func (pmgr *pathWallet) walletSignTxPath(pattern string) *framework.Path {
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.CreateOperation: &framework.PathOperation{
-				Callback: pmgr.signTxCallBack,
+				Callback: h.callback.export,
 			},
 			logical.UpdateOperation: &framework.PathOperation{
-				Callback: pmgr.signTxCallBack,
+				Callback: h.callback.signTx,
 			},
 		},
 		HelpSynopsis:    doc.PathSignSyn,
@@ -36,7 +36,7 @@ func (pmgr *pathWallet) walletSignTxPath(pattern string) *framework.Path {
 	}
 }
 
-func (pmgr *pathWallet) signTxCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) signTx(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	address := data.Get(doc.FieldAddress).(string)
 
@@ -54,7 +54,7 @@ func (pmgr *pathWallet) signTxCallBack(ctx context.Context, req *logical.Request
 	// TODO：ChainId 约束: Config中设置
 	chainId := data.Get(doc.FieldChainId).(int64)
 
-	policy, err := pmgr.Storage.Policy.Read(ctx, req, namespace)
+	policy, err := cb.Storage.Policy.Read(ctx, req, namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (pmgr *pathWallet) signTxCallBack(ctx context.Context, req *logical.Request
 	}
 
 	// 获取目标钱包
-	wallet, err := pmgr.Storage.Wallet.Read(ctx, req, namespace, address)
+	wallet, err := cb.Storage.Wallet.Read(ctx, req, namespace, address)
 	if err != nil {
 		return nil, err
 	}

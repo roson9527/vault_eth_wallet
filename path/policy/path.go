@@ -8,19 +8,23 @@ import (
 )
 
 func Path() []*framework.Path {
-	pMgr := NewPathMgr()
+	pMgr := newPathMgr()
 	return []*framework.Path{
-		pMgr.policyPath(fmt.Sprintf(storage.PatternPolicy, framework.GenericNameRegex(doc.FieldNameSpace))),
+		pMgr.handler.policy(fmt.Sprintf(storage.PatternPolicy, framework.GenericNameRegex(doc.FieldNameSpace))),
 	}
 }
 
-type PathMgr struct {
-	pathPolicy
+type pathMgr struct {
+	handler handler
 }
 
-func NewPathMgr() *PathMgr {
+func newPathMgr() *pathMgr {
 	storageIns := storage.NewCore()
-	return &PathMgr{
-		pathPolicy{storageIns},
+	return &pathMgr{
+		handler{
+			callback{
+				Storage: storageIns,
+			},
+		},
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/roson9527/vault_eth_wallet/path/doc"
 )
 
-func (pmgr *pathSocialID) listPath(pattern string) *framework.Path {
+func (h *handler) list(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
@@ -27,24 +27,23 @@ func (pmgr *pathSocialID) listPath(pattern string) *framework.Path {
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ListOperation: &framework.PathOperation{
-				Callback: pmgr.listCallBack,
+				Callback: h.callback.list,
 			},
 		},
 		HelpSynopsis:    doc.PathListSyn,
 		HelpDescription: doc.PathListDesc,
 	}
 }
-
-func (pmgr *pathSocialID) listCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) list(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	app := data.Get(doc.FieldApp).(string)
 
 	var out []string
 	var err error
 	if namespace == doc.NameSpaceGlobal {
-		out, err = pmgr.Storage.Social.List(ctx, req, app)
+		out, err = cb.Storage.Social.List(ctx, req, app)
 	} else {
-		out, err = pmgr.Storage.Alias.List(ctx, req, namespace, app)
+		out, err = cb.Storage.Alias.List(ctx, req, namespace, app)
 	}
 	if err != nil {
 		return nil, err

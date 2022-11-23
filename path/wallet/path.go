@@ -8,26 +8,30 @@ import (
 )
 
 func Path() []*framework.Path {
-	pMgr := NewPathMgr()
+	pMgr := newPathMgr()
 	return []*framework.Path{
-		pMgr.listWalletPath(fmt.Sprintf(storage.PatternWallet, framework.GenericNameRegex(doc.FieldNameSpace), "?")),
-		pMgr.createWalletPath(fmt.Sprintf(storage.PatternWallet, doc.NameSpaceGlobal, doc.PathSubNew)),
-		pMgr.walletExportPath(fmt.Sprintf(storage.PatternWallet, framework.GenericNameRegex(doc.FieldNameSpace), framework.GenericNameRegex(doc.FieldAddress)) + doc.PathSubExport),
-		pMgr.walletActionPath(fmt.Sprintf(storage.PatternWallet, framework.GenericNameRegex(doc.FieldNameSpace), framework.GenericNameRegex(doc.FieldAddress))),
-		pMgr.walletSignTxPath(
+		pMgr.handler.list(fmt.Sprintf(storage.PatternWallet, framework.GenericNameRegex(doc.FieldNameSpace), "?")),
+		pMgr.handler.create(fmt.Sprintf(storage.PatternWallet, doc.NameSpaceGlobal, doc.PathSubNew)),
+		pMgr.handler.export(fmt.Sprintf(storage.PatternWallet, framework.GenericNameRegex(doc.FieldNameSpace), framework.GenericNameRegex(doc.FieldAddress)) + doc.PathSubExport),
+		pMgr.handler.action(fmt.Sprintf(storage.PatternWallet, framework.GenericNameRegex(doc.FieldNameSpace), framework.GenericNameRegex(doc.FieldAddress))),
+		pMgr.handler.signTx(
 			fmt.Sprintf(storage.PatternWallet,
 				framework.GenericNameRegex(doc.FieldNameSpace),
 				framework.GenericNameRegex(doc.FieldAddress)+doc.PathSubSignTx)),
 	}
 }
 
-type PathMgr struct {
-	pathWallet
+type pathMgr struct {
+	handler handler
 }
 
-func NewPathMgr() *PathMgr {
+func newPathMgr() *pathMgr {
 	storageIns := storage.NewCore()
-	return &PathMgr{
-		pathWallet{storageIns},
+	return &pathMgr{
+		handler{
+			callback{
+				Storage: storageIns,
+			},
+		},
 	}
 }

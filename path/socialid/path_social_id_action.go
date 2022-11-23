@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (pmgr *pathSocialID) actionPath(pattern string) *framework.Path {
+func (h *handler) action(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
@@ -25,13 +25,13 @@ func (pmgr *pathSocialID) actionPath(pattern string) *framework.Path {
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ReadOperation: &framework.PathOperation{
-				Callback: pmgr.readCallBack,
+				Callback: h.callback.read,
 			},
 			logical.UpdateOperation: &framework.PathOperation{
-				Callback: pmgr.updateCallBack,
+				Callback: h.callback.update,
 			},
 			logical.DeleteOperation: &framework.PathOperation{
-				Callback: pmgr.deleteCallBack,
+				Callback: h.callback.delete,
 			},
 		},
 		HelpSynopsis:    doc.PathReadSyn,
@@ -39,7 +39,7 @@ func (pmgr *pathSocialID) actionPath(pattern string) *framework.Path {
 	}
 }
 
-func (pmgr *pathSocialID) deleteCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) delete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	if namespace != doc.NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be deleted")
@@ -48,17 +48,17 @@ func (pmgr *pathSocialID) deleteCallBack(ctx context.Context, req *logical.Reque
 	app := data.Get(doc.FieldApp).(string)
 	user := data.Get(doc.FieldUser).(string)
 	// 获取目标钱包
-	oldSocialId, err := pmgr.Storage.Social.Read(ctx, req, doc.NameSpaceGlobal, app, user)
+	oldSocialId, err := cb.Storage.Social.Read(ctx, req, doc.NameSpaceGlobal, app, user)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.Storage.Social.Delete(ctx, req, app, user)
+	err = cb.Storage.Social.Delete(ctx, req, app, user)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, app2AType(app), user, oldSocialId.NameSpaces, []string{})
+	err = cb.Storage.Alias.Update(ctx, req, app2AType(app), user, oldSocialId.NameSpaces, []string{})
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (pmgr *pathSocialID) deleteCallBack(ctx context.Context, req *logical.Reque
 	}, nil
 }
 
-func (pmgr *pathSocialID) updateCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) update(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	if namespace != doc.NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be updated")
@@ -79,13 +79,13 @@ func (pmgr *pathSocialID) updateCallBack(ctx context.Context, req *logical.Reque
 	app := data.Get(doc.FieldApp).(string)
 	user := data.Get(doc.FieldUser).(string)
 	// 获取目标钱包
-	oldSocialId, err := pmgr.Storage.Social.Read(ctx, req, doc.NameSpaceGlobal, app, user)
+	oldSocialId, err := cb.Storage.Social.Read(ctx, req, doc.NameSpaceGlobal, app, user)
 	if err != nil {
 		return nil, err
 	}
 
 	nameSpaces := data.Get(doc.FieldNameSpaces).([]string)
-	wallet, err := pmgr.Storage.Social.Update(ctx, req, &modules.SocialID{
+	wallet, err := cb.Storage.Social.Update(ctx, req, &modules.SocialID{
 		NameSpaces: nameSpaces,
 		UpdateTime: time.Now().Unix(),
 	})
@@ -93,7 +93,7 @@ func (pmgr *pathSocialID) updateCallBack(ctx context.Context, req *logical.Reque
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, app2AType(app), user, oldSocialId.NameSpaces, nameSpaces)
+	err = cb.Storage.Alias.Update(ctx, req, app2AType(app), user, oldSocialId.NameSpaces, nameSpaces)
 	if err != nil {
 		return nil, err
 	}
@@ -103,12 +103,12 @@ func (pmgr *pathSocialID) updateCallBack(ctx context.Context, req *logical.Reque
 	}, nil
 }
 
-func (pmgr *pathSocialID) readCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) read(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	user := data.Get(doc.FieldUser).(string)
 	app := data.Get(doc.FieldApp).(string)
 	// 获取目标钱包
-	socialId, err := pmgr.Storage.Social.Read(ctx, req, namespace, app, user)
+	socialId, err := cb.Storage.Social.Read(ctx, req, namespace, app, user)
 	if err != nil {
 		return nil, err
 	}

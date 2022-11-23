@@ -6,7 +6,11 @@ import (
 	"github.com/roson9527/vault_eth_wallet/path/storage"
 )
 
-type pathWallet struct {
+type handler struct {
+	callback callback
+}
+
+type callback struct {
 	Storage *storage.Core
 }
 

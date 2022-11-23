@@ -8,33 +8,39 @@ import (
 )
 
 func Path() []*framework.Path {
-	pMgr := NewPathMgr()
+	pMgr := newPathMgr()
 	out := make([]*framework.Path, 0)
 	for _, app := range []string{doc.AppDiscord, doc.AppTwitter} {
-		out = append(out, pMgr.Builder(app)...)
+		out = append(out, pMgr.builder(app)...)
 	}
 	return out
 }
 
-type PathMgr struct {
-	pathSocialID
+type pathMgr struct {
+	handler handler
 }
 
-func (pmgr *PathMgr) Builder(app string) []*framework.Path {
+func (pmgr *pathMgr) builder(app string) []*framework.Path {
 	out := make([]*framework.Path, 0)
-	out = append(out, pmgr.pushPath(fmt.Sprintf(storage.PatternSocialID, doc.NameSpaceGlobal, app, doc.PathSubNew)))
-	out = append(out, pmgr.listPath(fmt.Sprintf(storage.PatternSocialID, framework.GenericNameRegex(doc.FieldNameSpace),
-		app, "?")))
-	out = append(out, pmgr.actionPath(fmt.Sprintf(storage.PatternSocialID, framework.GenericNameRegex(doc.FieldNameSpace),
-		app, framework.GenericNameRegex(doc.FieldUser))))
-	out = append(out, pmgr.exportPath(fmt.Sprintf(storage.PatternSocialID, framework.GenericNameRegex(doc.FieldNameSpace),
-		app, framework.GenericNameRegex(doc.FieldUser)+doc.PathSubExport)))
+	out = append(out, pmgr.handler.push(fmt.Sprintf(storage.PatternSocialID, doc.NameSpaceGlobal, app,
+		framework.GenericNameRegex(doc.FieldUser))+"/"+doc.PathSubNew))
+	out = append(out, pmgr.handler.list(fmt.Sprintf(storage.PatternSocialID,
+		framework.GenericNameRegex(doc.FieldNameSpace), app, "?")))
+	out = append(out, pmgr.handler.action(fmt.Sprintf(storage.PatternSocialID,
+		framework.GenericNameRegex(doc.FieldNameSpace), app, framework.GenericNameRegex(doc.FieldUser))))
+	out = append(out, pmgr.handler.export(fmt.Sprintf(storage.PatternSocialID,
+		framework.GenericNameRegex(doc.FieldNameSpace), app,
+		framework.GenericNameRegex(doc.FieldUser)+doc.PathSubExport)))
 	return out
 }
 
-func NewPathMgr() *PathMgr {
+func newPathMgr() *pathMgr {
 	storageIns := storage.NewCore()
-	return &PathMgr{
-		pathSocialID{storageIns},
+	return &pathMgr{
+		handler: handler{
+			callback: callback{
+				Storage: storageIns,
+			},
+		},
 	}
 }

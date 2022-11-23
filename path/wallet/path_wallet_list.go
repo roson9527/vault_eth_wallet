@@ -8,7 +8,7 @@ import (
 	"github.com/roson9527/vault_eth_wallet/path/doc"
 )
 
-func (pmgr *pathWallet) listWalletPath(pattern string) *framework.Path {
+func (h *handler) list(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
@@ -22,7 +22,7 @@ func (pmgr *pathWallet) listWalletPath(pattern string) *framework.Path {
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ListOperation: &framework.PathOperation{
-				Callback: pmgr.listCallBack,
+				Callback: h.callback.list,
 			},
 		},
 		HelpSynopsis:    doc.PathListSyn,
@@ -30,15 +30,15 @@ func (pmgr *pathWallet) listWalletPath(pattern string) *framework.Path {
 	}
 }
 
-func (pmgr *pathWallet) listCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) list(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 
 	var out []string
 	var err error
 	if namespace == doc.NameSpaceGlobal {
-		out, err = pmgr.Storage.Wallet.List(ctx, req)
+		out, err = cb.Storage.Wallet.List(ctx, req)
 	} else {
-		out, err = pmgr.Storage.Alias.List(ctx, req, namespace, doc.AliasWallet)
+		out, err = cb.Storage.Alias.List(ctx, req, namespace, doc.AliasWallet)
 	}
 	if err != nil {
 		return nil, err

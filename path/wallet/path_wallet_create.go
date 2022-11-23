@@ -9,7 +9,7 @@ import (
 	"github.com/roson9527/vault_eth_wallet/path/doc"
 )
 
-func (pmgr *pathWallet) createWalletPath(pattern string) *framework.Path {
+func (h *handler) create(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
@@ -23,10 +23,10 @@ func (pmgr *pathWallet) createWalletPath(pattern string) *framework.Path {
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.UpdateOperation: &framework.PathOperation{
-				Callback: pmgr.createCallBack,
+				Callback: h.callback.create,
 			},
 			logical.CreateOperation: &framework.PathOperation{
-				Callback: pmgr.createCallBack,
+				Callback: h.callback.create,
 			},
 		},
 		HelpSynopsis:    doc.PathCreateSyn,
@@ -34,7 +34,7 @@ func (pmgr *pathWallet) createWalletPath(pattern string) *framework.Path {
 	}
 }
 
-func (pmgr *pathWallet) createCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) create(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	overwrite := &modules.Wallet{}
 	var err error
 
@@ -52,12 +52,12 @@ func (pmgr *pathWallet) createCallBack(ctx context.Context, req *logical.Request
 	}
 
 	// 获取所有的钱包
-	wallet, err := pmgr.Storage.Wallet.Create(ctx, req, overwrite)
+	wallet, err := cb.Storage.Wallet.Create(ctx, req, overwrite)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, doc.AliasWallet, wallet.Address, []string{}, wallet.NameSpaces) // 更新别名
+	err = cb.Storage.Alias.Update(ctx, req, doc.AliasWallet, wallet.Address, []string{}, wallet.NameSpaces) // 更新别名
 	if err != nil {
 		return nil, err
 	}

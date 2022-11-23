@@ -11,11 +11,15 @@ import (
 	"github.com/roson9527/vault_eth_wallet/path/storage"
 )
 
-type pathPolicy struct {
+type handler struct {
+	callback callback
+}
+
+type callback struct {
 	Storage *storage.Core
 }
 
-func (pmgr *pathPolicy) policyPath(pattern string) *framework.Path {
+func (h *handler) policy(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		Fields: map[string]*framework.FieldSchema{
@@ -30,13 +34,13 @@ func (pmgr *pathPolicy) policyPath(pattern string) *framework.Path {
 
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.UpdateOperation: &framework.PathOperation{
-				Callback: pmgr.updateCallBack,
+				Callback: h.callback.update,
 			},
 			logical.CreateOperation: &framework.PathOperation{
-				Callback: pmgr.updateCallBack,
+				Callback: h.callback.update,
 			},
 			logical.ReadOperation: &framework.PathOperation{
-				Callback: pmgr.readCallBack,
+				Callback: h.callback.read,
 			},
 		},
 		HelpSynopsis:    "",
@@ -44,8 +48,8 @@ func (pmgr *pathPolicy) policyPath(pattern string) *framework.Path {
 	}
 }
 
-func (pmgr *pathPolicy) updateCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	policy, err := pmgr.Storage.Policy.Write(ctx, req, data)
+func (cb *callback) update(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+	policy, err := cb.Storage.Policy.Write(ctx, req, data)
 	if err != nil {
 		return nil, err
 	}
@@ -53,10 +57,10 @@ func (pmgr *pathPolicy) updateCallBack(ctx context.Context, req *logical.Request
 	return &logical.Response{Data: structs.Map(policy)}, nil
 }
 
-func (pmgr *pathPolicy) readCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) read(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	// TODO:做policy合并 global policy + namespace policy
-	policy, err := pmgr.Storage.Policy.Read(ctx, req, namespace)
+	policy, err := cb.Storage.Policy.Read(ctx, req, namespace)
 	if err != nil {
 		return nil, err
 	}

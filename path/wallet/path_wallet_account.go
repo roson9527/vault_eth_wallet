@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (pmgr *pathWallet) walletActionPath(pattern string) *framework.Path {
+func (h *handler) action(pattern string) *framework.Path {
 	return &framework.Path{
 		Pattern: pattern,
 		// 字段
@@ -26,13 +26,13 @@ func (pmgr *pathWallet) walletActionPath(pattern string) *framework.Path {
 		// 执行的位置，有read，listWallet，createWallet，update
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ReadOperation: &framework.PathOperation{
-				Callback: pmgr.readCallBack,
+				Callback: h.callback.read,
 			},
 			logical.UpdateOperation: &framework.PathOperation{
-				Callback: pmgr.updateCallBack,
+				Callback: h.callback.update,
 			},
 			logical.DeleteOperation: &framework.PathOperation{
-				Callback: pmgr.deleteCallBack,
+				Callback: h.callback.delete,
 			},
 		},
 		HelpSynopsis:    doc.PathReadSyn,
@@ -40,7 +40,7 @@ func (pmgr *pathWallet) walletActionPath(pattern string) *framework.Path {
 	}
 }
 
-func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) delete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	if namespace != doc.NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be deleted")
@@ -48,17 +48,17 @@ func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request
 
 	address := data.Get(doc.FieldAddress).(string)
 	// 获取目标钱包
-	oldWallet, err := pmgr.Storage.Wallet.Read(ctx, req, doc.NameSpaceGlobal, address)
+	oldWallet, err := cb.Storage.Wallet.Read(ctx, req, doc.NameSpaceGlobal, address)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.Storage.Wallet.Delete(ctx, req, address)
+	err = cb.Storage.Wallet.Delete(ctx, req, address)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, doc.AliasWallet, address, oldWallet.NameSpaces, []string{})
+	err = cb.Storage.Alias.Update(ctx, req, doc.AliasWallet, address, oldWallet.NameSpaces, []string{})
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request
 	}, nil
 }
 
-func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) update(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	if namespace != doc.NameSpaceGlobal {
 		return nil, errors.New("only global namespace can be updated")
@@ -88,17 +88,17 @@ func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request
 	}
 
 	// 获取目标钱包
-	oldWallet, err := pmgr.Storage.Wallet.Read(ctx, req, doc.NameSpaceGlobal, overwrite.Address)
+	oldWallet, err := cb.Storage.Wallet.Read(ctx, req, doc.NameSpaceGlobal, overwrite.Address)
 	if err != nil {
 		return nil, err
 	}
 
-	wallet, err := pmgr.Storage.Wallet.Update(ctx, req, &overwrite)
+	wallet, err := cb.Storage.Wallet.Update(ctx, req, &overwrite)
 	if err != nil {
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, doc.AliasWallet, overwrite.Address, oldWallet.NameSpaces, overwrite.NameSpaces)
+	err = cb.Storage.Alias.Update(ctx, req, doc.AliasWallet, overwrite.Address, oldWallet.NameSpaces, overwrite.NameSpaces)
 	if err != nil {
 		return nil, err
 	}
@@ -108,11 +108,11 @@ func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request
 	}, nil
 }
 
-func (pmgr *pathWallet) readCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) read(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	address := data.Get(doc.FieldAddress).(string)
 	// 获取目标钱包
-	wallet, err := pmgr.Storage.Wallet.Read(ctx, req, namespace, address)
+	wallet, err := cb.Storage.Wallet.Read(ctx, req, namespace, address)
 	if err != nil {
 		return nil, err
 	}
