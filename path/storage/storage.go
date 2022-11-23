@@ -4,6 +4,7 @@ type Core struct {
 	Wallet *walletStorage
 	Policy *policyStorage
 	Alias  *aliasStorage
+	Social *socialIDStorage
 }
 
 var core = newCore()
@@ -13,6 +14,7 @@ func newCore() *Core {
 		Alias:  newAliasStorage(),
 		Wallet: newWalletStorage(),
 		Policy: newPolicyStorage(),
+		Social: newSocialIDStorage(),
 	}
 }
 

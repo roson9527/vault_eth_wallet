@@ -17,3 +17,4 @@ wallet_test.go
 wallet_layerzero_test.go
 wallet_prod_test.go
 gauth_test.go
+social_id_test.go

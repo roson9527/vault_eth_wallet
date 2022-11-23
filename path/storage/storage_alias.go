@@ -24,12 +24,12 @@ func newAliasStorage() *aliasStorage {
 	return &aliasStorage{}
 }
 
-func (as *aliasStorage) List(ctx context.Context, req *logical.Request, namespace, vType string) ([]string, error) {
+func (as *aliasStorage) List(ctx context.Context, req *logical.Request, namespace, aType string) ([]string, error) {
 	// 获取namespace下所有对应vType的alias
-	return req.Storage.List(ctx, fmt.Sprintf(PatternAlias, namespace, vType, ""))
+	return req.Storage.List(ctx, fmt.Sprintf(PatternAlias, namespace, aType, ""))
 }
 
-func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, vType, address string, oldNS, newNS []string) error {
+func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, aType, address string, oldNS, newNS []string) error {
 	// 更新所有的alias指向
 	// 1、删除在新的namespace中不存在的alias
 	waitDel := make([]string, 0)
@@ -39,7 +39,7 @@ func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, vType,
 		}
 	}
 	for _, ns := range waitDel {
-		path := fmt.Sprintf(PatternAlias, ns, vType, address)
+		path := fmt.Sprintf(PatternAlias, ns, aType, address)
 		err := req.Storage.Delete(ctx, path)
 		if err != nil {
 			return err
@@ -55,7 +55,7 @@ func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, vType,
 	}
 
 	for _, ns := range waitAdd {
-		path := fmt.Sprintf(PatternAlias, ns, vType, address)
+		path := fmt.Sprintf(PatternAlias, ns, aType, address)
 		alias := modules.Alias{
 			Source: address,
 		}

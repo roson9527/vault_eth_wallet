@@ -22,6 +22,9 @@ const (
 )
 
 const (
+	FieldSocialID   = "social_id"
+	FieldApp        = "app"
+	FieldUser       = "user"
 	FieldAddress    = "address"
 	FieldNetwork    = "network"
 	FieldExtra      = "extra"
@@ -44,6 +47,11 @@ const (
 )
 
 const (
-	AliasWallet  = "wallet"
-	AliasDiscord = "discord"
+	AliasWallet = "wallet"
+	AliasSocial = "social/%s"
+)
+
+const (
+	AppDiscord = "discord"
+	AppTwitter = "twitter"
 )
