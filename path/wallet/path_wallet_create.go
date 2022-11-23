@@ -57,7 +57,7 @@ func (pmgr *pathWallet) createCallBack(ctx context.Context, req *logical.Request
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, wallet.Address, []string{}, wallet.NameSpaces) // 更新别名
+	err = pmgr.Storage.Alias.Update(ctx, req, doc.AliasWallet, wallet.Address, []string{}, wallet.NameSpaces) // 更新别名
 	if err != nil {
 		return nil, err
 	}

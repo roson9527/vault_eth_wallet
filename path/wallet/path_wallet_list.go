@@ -33,12 +33,18 @@ func (pmgr *pathWallet) listWalletPath(pattern string) *framework.Path {
 func (pmgr *pathWallet) listCallBack(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 
-	// 获取所有的钱包
-	out, err := pmgr.Storage.Wallet.List(ctx, req, namespace)
-	hclog.Default().Info("listWallet", "namespace", namespace, "length", len(out))
+	var out []string
+	var err error
+	if namespace == doc.NameSpaceGlobal {
+		out, err = pmgr.Storage.Wallet.List(ctx, req)
+	} else {
+		out, err = pmgr.Storage.Alias.List(ctx, req, namespace, doc.AliasWallet)
+	}
 	if err != nil {
 		return nil, err
 	}
+
+	hclog.Default().Info("wallet:list", "namespace", namespace, "length", len(out))
 
 	return logical.ListResponse(out), nil
 }

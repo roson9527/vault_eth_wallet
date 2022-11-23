@@ -42,3 +42,8 @@ const (
 const (
 	NetworkETH = "ETH"
 )
+
+const (
+	AliasWallet  = "wallet"
+	AliasDiscord = "discord"
+)

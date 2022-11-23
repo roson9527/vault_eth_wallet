@@ -58,7 +58,7 @@ func (pmgr *pathWallet) deleteCallBack(ctx context.Context, req *logical.Request
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, address, oldWallet.NameSpaces, []string{})
+	err = pmgr.Storage.Alias.Update(ctx, req, doc.AliasWallet, address, oldWallet.NameSpaces, []string{})
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (pmgr *pathWallet) updateCallBack(ctx context.Context, req *logical.Request
 		return nil, err
 	}
 
-	err = pmgr.Storage.Alias.Update(ctx, req, overwrite.Address, oldWallet.NameSpaces, overwrite.NameSpaces)
+	err = pmgr.Storage.Alias.Update(ctx, req, doc.AliasWallet, overwrite.Address, oldWallet.NameSpaces, overwrite.NameSpaces)
 	if err != nil {
 		return nil, err
 	}

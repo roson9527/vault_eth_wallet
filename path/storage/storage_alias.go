@@ -8,7 +8,13 @@ import (
 )
 
 const (
-	PatternAlias = "%s/alias/%s"
+	// PatternAlias is the pattern for the alias storage path
+	/* PatternAlias = "%s/alias/%s/%s"
+	 * [namespace]/alias/[type]/[address]
+	 * e.g. global/alias/discord/0x1234567890
+	 * e.g. global/alias/wallet/0x1234567890
+	 */
+	PatternAlias = "%s/alias/%s/%s"
 )
 
 type aliasStorage struct {
@@ -18,7 +24,12 @@ func newAliasStorage() *aliasStorage {
 	return &aliasStorage{}
 }
 
-func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, address string, oldNS, newNS []string) error {
+func (as *aliasStorage) List(ctx context.Context, req *logical.Request, namespace, vType string) ([]string, error) {
+	// 获取namespace下所有对应vType的alias
+	return req.Storage.List(ctx, fmt.Sprintf(PatternAlias, namespace, vType, ""))
+}
+
+func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, vType, address string, oldNS, newNS []string) error {
 	// 更新所有的alias指向
 	// 1、删除在新的namespace中不存在的alias
 	waitDel := make([]string, 0)
@@ -28,7 +39,7 @@ func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, addres
 		}
 	}
 	for _, ns := range waitDel {
-		path := fmt.Sprintf(PatternAlias, ns, address)
+		path := fmt.Sprintf(PatternAlias, ns, vType, address)
 		err := req.Storage.Delete(ctx, path)
 		if err != nil {
 			return err
@@ -44,8 +55,10 @@ func (as *aliasStorage) Update(ctx context.Context, req *logical.Request, addres
 	}
 
 	for _, ns := range waitAdd {
-		path := fmt.Sprintf(PatternAlias, ns, address)
-		alias := modules.Alias{Source: address}
+		path := fmt.Sprintf(PatternAlias, ns, vType, address)
+		alias := modules.Alias{
+			Source: address,
+		}
 		entry, err := logical.StorageEntryJSON(path, &alias)
 		if err != nil {
 			return err

@@ -117,12 +117,8 @@ func (as *walletStorage) Create(ctx context.Context, req *logical.Request, overw
 	return walletEty, nil
 }
 
-func (as *walletStorage) List(ctx context.Context, req *logical.Request, namespace string) ([]string, error) {
-	if namespace == doc.NameSpaceGlobal {
-		return req.Storage.List(ctx, fmt.Sprintf(PatternWallet, doc.NameSpaceGlobal, ""))
-	}
-
-	return req.Storage.List(ctx, fmt.Sprintf(PatternAlias, namespace, ""))
+func (as *walletStorage) List(ctx context.Context, req *logical.Request) ([]string, error) {
+	return req.Storage.List(ctx, fmt.Sprintf(PatternWallet, doc.NameSpaceGlobal, ""))
 }
 
 func (as *walletStorage) Delete(ctx context.Context, req *logical.Request, address string) error {
