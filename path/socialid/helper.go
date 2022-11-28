@@ -6,16 +6,7 @@ import (
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/path/base"
 	"github.com/roson9527/vault_eth_wallet/path/doc"
-	"github.com/roson9527/vault_eth_wallet/path/storage"
 )
-
-type handler struct {
-	callback callback
-}
-
-type callback struct {
-	Storage *storage.Core
-}
 
 func socialIDResponseData(socialId *modules.SocialID, extra bool) map[string]any {
 	socialId.GAuth = nil

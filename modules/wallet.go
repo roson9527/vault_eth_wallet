@@ -1,10 +1,12 @@
 package modules
 
 import (
+	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/mitchellh/mapstructure"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
 	"github.com/roson9527/vault_eth_wallet/utils"
 	"math/big"
 )
@@ -19,18 +21,41 @@ func (w *Extra) Decode(m map[string]any) error {
 	return err
 }
 
+var zeroInt = big.NewInt(0)
+
+type AddressAliasMap = map[string]string
+
 // Wallet is an Ethereum Wallet
 type Wallet struct {
-	PrivateKey string   `json:"private_key"`          // PrivateKey is the private key of the wallet
-	PublicKey  string   `json:"public_key,omitempty"` // PublicKey is the public key of the wallet
-	Address    string   `json:"address"`              // Address is the address of the wallet
-	UpdateTime int64    `json:"update_time"`          // key pair update time
-	NameSpaces []string `json:"namespaces,omitempty"` // 用于项目区分
-	Network    string   `json:"network,omitempty"`    // 网络区分
-	Extra      Extra    `json:"extra"`                // 用于标签scan
+	PublicKey  string `json:"public_key,omitempty" mapstructure:"public_key,omitempty"` // PublicKey is the public key of the wallet
+	Address    string `json:"address" mapstructure:"address"`
+	UpdateTime int64  `json:"update_time" mapstructure:"update_time,omitempty"` // key pair update time
 }
 
-func (w *Wallet) SignEthTx(unsignTx *types.Transaction, chainId int64) (*types.Transaction, error) {
+// WalletExtra is an Ethereum Wallet
+type WalletExtra struct {
+	Wallet     `mapstructure:",squash"`
+	Mnemonic   string `json:"mnemonic" mapstructure:"mnemonic,omitempty"`       // Mnemonic is the mnemonic of the wallet
+	PrivateKey string `json:"private_key" mapstructure:"private_key,omitempty"` // PrivateKey is the private key of the wallet
+	//PublicKey    string          `json:"public_key,omitempty"`    // PublicKey is the public key of the wallet
+	AddressAlias AddressAliasMap `json:"address_alias,omitempty" mapstructure:"address_alias,omitempty"` // Address is the address of the wallet
+	NameSpaces   []string        `json:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`       // 用于项目区分
+	CryptoType   string          `json:"crypto_type,omitempty" mapstructure:"crypto_type,omitempty"`     // 加密曲线区分
+	Extra        Extra           `json:"extra" mapstructure:"extra,omitempty"`                           // 用于标签
+}
+
+func (w *WalletExtra) GetAddress(chain string) string {
+	addr := w.AddressAlias[chain]
+	if addr != "" {
+		return addr
+	}
+	if w.Address != "" {
+		return w.Address
+	}
+	return w.AddressAlias[doc.ChainDefault]
+}
+
+func (w *WalletExtra) SignEthTx(unsignTx *types.Transaction) (*types.Transaction, error) {
 	privateKey, err := crypto.HexToECDSA(w.PrivateKey)
 	if err != nil {
 		return nil, err
@@ -38,16 +63,13 @@ func (w *Wallet) SignEthTx(unsignTx *types.Transaction, chainId int64) (*types.T
 	// 防止没有进入回收被检索到
 	defer utils.ZeroKey(privateKey)
 
-	// 做chainId约束
-	cId := big.NewInt(chainId)
-	if unsignTx.Type() != types.LegacyTxType {
-		if unsignTx.ChainId() == nil || unsignTx.ChainId().Cmp(cId) != 0 {
-			return nil, types.ErrInvalidChainId
-		}
+	// 不支持旧交易
+	if unsignTx.ChainId() == nil || unsignTx.ChainId().Cmp(zeroInt) == 0 {
+		return nil, fmt.Errorf("not support old transaction")
 	}
 
 	// 签名工具
-	transactor, err := bind.NewKeyedTransactorWithChainID(privateKey, cId)
+	transactor, err := bind.NewKeyedTransactorWithChainID(privateKey, unsignTx.ChainId())
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,11 @@ import (
 )
 
 const (
-	PatternPolicy = "%s/policy"
+	// PatternPolicy policy path pattern
+	/*
+		e.g. [global|namespace]/policy/[crypto_type]/[chain]
+	*/
+	PatternPolicy = "%s/policy/%s/%s"
 )
 
 type policyStorage struct {
@@ -23,8 +27,8 @@ func newPolicyStorage() *policyStorage {
 	return &policyStorage{}
 }
 
-func (as *policyStorage) Read(ctx context.Context, req *logical.Request, namespace string) (*modules.Policy, error) {
-	path := fmt.Sprintf(PatternPolicy, namespace)
+func (as *policyStorage) Read(ctx context.Context, req *logical.Request, namespace, cryptoType, chain string) (*modules.Policy, error) {
+	path := fmt.Sprintf(PatternPolicy, namespace, cryptoType, chain)
 	entry, err := req.Storage.Get(ctx, path)
 
 	if err != nil {
@@ -46,7 +50,9 @@ func (as *policyStorage) Read(ctx context.Context, req *logical.Request, namespa
 
 func (as *policyStorage) Write(ctx context.Context, req *logical.Request, data *framework.FieldData) (*modules.Policy, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
-	path := fmt.Sprintf(PatternPolicy, namespace)
+	cryptoType := data.Get(doc.FieldCryptoType).(string)
+	chain := data.Get(doc.FieldChain).(string)
+	path := fmt.Sprintf(PatternPolicy, namespace, cryptoType, chain)
 	policyData := data.Get(doc.FieldPolicy).(map[string]any)
 	policyHCL := data.Get(doc.FieldPolicyHCL).(string)
 

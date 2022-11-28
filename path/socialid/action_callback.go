@@ -6,38 +6,9 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/roson9527/vault_eth_wallet/modules"
-	"github.com/roson9527/vault_eth_wallet/path/base"
 	"github.com/roson9527/vault_eth_wallet/path/doc"
 	"time"
 )
-
-func (h *handler) action(pattern string) *framework.Path {
-	return &framework.Path{
-		Pattern: pattern,
-		// 字段
-		Fields: map[string]*framework.FieldSchema{
-			doc.FieldNameSpace:  {Type: framework.TypeString},
-			doc.FieldUser:       {Type: framework.TypeString},
-			doc.FieldApp:        {Type: framework.TypeString},
-			doc.FieldNameSpaces: {Type: framework.TypeCommaStringSlice, Default: []string{}},
-		},
-		ExistenceCheck: base.PathExistenceCheck,
-		// 执行的位置，有read，listWallet，createWallet，update
-		Operations: map[logical.Operation]framework.OperationHandler{
-			logical.ReadOperation: &framework.PathOperation{
-				Callback: h.callback.read,
-			},
-			logical.UpdateOperation: &framework.PathOperation{
-				Callback: h.callback.update,
-			},
-			logical.DeleteOperation: &framework.PathOperation{
-				Callback: h.callback.delete,
-			},
-		},
-		HelpSynopsis:    doc.PathReadSyn,
-		HelpDescription: doc.PathReadDesc,
-	}
-}
 
 func (cb *callback) delete(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
@@ -58,7 +29,7 @@ func (cb *callback) delete(ctx context.Context, req *logical.Request, data *fram
 		return nil, err
 	}
 
-	err = cb.Storage.Alias.Update(ctx, req, app2AType(app), user, oldSocialId.NameSpaces, []string{})
+	err = cb.Storage.Alias.Update(ctx, req, app2AType(app), user, "", oldSocialId.NameSpaces, []string{})
 	if err != nil {
 		return nil, err
 	}

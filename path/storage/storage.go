@@ -18,6 +18,6 @@ func newCore() *Core {
 	}
 }
 
-func NewCore() *Core {
+func Standard() *Core {
 	return core
 }
