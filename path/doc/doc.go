@@ -22,23 +22,44 @@ const (
 )
 
 const (
-	FieldAddress    = "address"
-	FieldNetwork    = "network"
-	FieldExtra      = "extra"
-	FieldUpdateTime = "update_time"
-	FieldNameSpace  = "namespace"
-	FieldNameSpaces = "namespaces"
-	FieldPrivateKey = "private_key"
-	FieldPublicKey  = "public_key"
-	FieldTxBinary   = "tx_binary"
-	FieldTxHash     = "tx_hash"
-	FieldChainId    = "chain_id"
-	FieldChainType  = "chain_type"
-	FieldPolicyHCL  = "policy_hcl"
-	FieldKeys       = "keys"
-	FieldPolicy     = "policy"
+	FieldMnemonic     = "mnemonic"
+	FieldGAuth        = "g_auth"
+	FieldSocialID     = "social_id"
+	FieldApp          = "app"
+	FieldUser         = "user"
+	FieldAddress      = "address"
+	FieldAddressAlias = "address_alias"
+	FieldCryptoType   = "crypto_type"
+	FieldChain        = "chain"
+	FieldExtra        = "extra"
+	FieldUpdateTime   = "update_time"
+	FieldNameSpace    = "namespace"
+	FieldNameSpaces   = "namespaces"
+	FieldPrivateKey   = "private_key"
+	FieldPublicKey    = "public_key"
+	FieldTxBinary     = "tx_binary"
+	FieldTxHash       = "tx_hash"
+	FieldPolicyHCL    = "policy_hcl"
+	FieldKeys         = "keys"
+	FieldPolicy       = "policy"
 )
 
 const (
-	NetworkETH = "ETH"
+	AliasWallet = "wallet/%s/%s"
+	AliasSocial = "social/%s"
+)
+
+const (
+	ChainETH     = "eth"
+	ChainDefault = "default"
+)
+
+const (
+	AppDiscord = "discord"
+	AppTwitter = "twitter"
+)
+
+const (
+	CryptoSECP256K1 = "secp256k1"
+	CryptoTEXT      = "text"
 )

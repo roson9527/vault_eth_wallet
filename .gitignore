@@ -16,3 +16,11 @@ airdrop.json
 wallet_test.go
 wallet_layerzero_test.go
 wallet_prod_test.go
+gauth_test.go
+social_id_test.go
+path_social_id_test.go
+client/wallet_eth_test.go
+client/wallet_local_test.go
+client/wallet_text_local_test.go
+path/socialid/helper_test.go
+client/policy_local_test.go

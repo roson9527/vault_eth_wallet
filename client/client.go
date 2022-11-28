@@ -1,8 +1,17 @@
 package client
 
-import "github.com/hashicorp/vault/api"
+import (
+	"github.com/hashicorp/vault/api"
+	"strings"
+)
 
 type Client struct {
+	Wallet *wallet
+	Policy *policy
+	Social *social
+}
+
+type core struct {
 	Meta *api.Client
 	conf *Config
 }
@@ -17,8 +26,19 @@ func NewClient(conf *Config) *Client {
 		panic(err)
 	}
 	cli.SetToken(conf.Token)
-	return &Client{
+
+	if !strings.HasSuffix(conf.SecretPath, "/") {
+		conf.SecretPath += "/"
+	}
+
+	c := &core{
 		Meta: cli,
 		conf: conf,
+	}
+
+	return &Client{
+		Wallet: newWallet(c),
+		Policy: newPolicy(c),
+		Social: &social{c},
 	}
 }

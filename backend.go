@@ -20,8 +20,13 @@ import (
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/roson9527/vault_eth_wallet/modules"
-	"github.com/roson9527/vault_eth_wallet/path/policy"
-	"github.com/roson9527/vault_eth_wallet/path/wallet"
+	"github.com/roson9527/vault_eth_wallet/path/factory"
+)
+
+// 注册的path引用
+import (
+	_ "github.com/roson9527/vault_eth_wallet/path/policy"
+	_ "github.com/roson9527/vault_eth_wallet/path/wallet"
 )
 
 // Factory returns the backend
@@ -48,8 +53,7 @@ func NewBackend() (*modules.EthWalletBackend, error) {
 		Help: "",
 		// 响应路由
 		Paths: framework.PathAppend(
-			wallet.Path(), // wallet path
-			policy.Path(), // policy path
+			factory.Do(), // factory path
 		),
 		// 特殊带权限路径，不能正则，但是可以通配符
 		PathsSpecial: &logical.Paths{

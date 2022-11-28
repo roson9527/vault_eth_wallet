@@ -9,6 +9,7 @@ fmt:
 	$(GOCMD) fmt ./...
 
 build: fmt
+	rm -rf ./plugin/$(BUILD_LINUX_TARGET)
 	$(GOBUILD) -o ./plugin/$(BUILD_TARGET)
 
 clean:

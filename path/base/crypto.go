@@ -7,11 +7,17 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/roson9527/vault_eth_wallet/modules"
+	"github.com/roson9527/vault_eth_wallet/path/doc"
 	"github.com/roson9527/vault_eth_wallet/utils"
 	"time"
 )
 
-func GenerateKey() (*modules.Wallet, error) {
+var CryptoETH = &cryptoETH{}
+
+type cryptoETH struct {
+}
+
+func (c *cryptoETH) GenerateKey() (*modules.WalletExtra, error) {
 	privateKey, err := crypto.GenerateKey()
 	if err != nil {
 		return nil, err
@@ -30,16 +36,24 @@ func GenerateKey() (*modules.Wallet, error) {
 	publicKeyBytes := crypto.FromECDSAPub(publicKeyECDSA)
 	publicKeyString := hexutil.Encode(publicKeyBytes)[4:]
 
-	return &modules.Wallet{
-		Address:    crypto.PubkeyToAddress(privateKey.PublicKey).Hex(),
+	address := crypto.PubkeyToAddress(privateKey.PublicKey).Hex()
+
+	return &modules.WalletExtra{
+		AddressAlias: map[string]string{
+			doc.ChainETH: address,
+		},
 		PrivateKey: privateKeyString,
-		PublicKey:  publicKeyString,
-		UpdateTime: time.Now().Unix(),
 		NameSpaces: make([]string, 0),
+		Wallet: modules.Wallet{
+			Address:    address,
+			PublicKey:  publicKeyString,
+			UpdateTime: time.Now().Unix(),
+		},
+		CryptoType: doc.CryptoSECP256K1,
 	}, nil
 }
 
-func PrivateToWallet(pri string) (*modules.Wallet, error) {
+func (c *cryptoETH) PrivateToWallet(pri string) (*modules.WalletExtra, error) {
 	privateKey, err := crypto.HexToECDSA(pri)
 	if err != nil {
 		return nil, errors.New("private key error")
@@ -58,10 +72,18 @@ func PrivateToWallet(pri string) (*modules.Wallet, error) {
 	publicKeyBytes := crypto.FromECDSAPub(publicKeyECDSA)
 	publicKeyString := hexutil.Encode(publicKeyBytes)[4:]
 
-	return &modules.Wallet{
-		Address:    crypto.PubkeyToAddress(privateKey.PublicKey).Hex(),
+	address := crypto.PubkeyToAddress(privateKey.PublicKey).Hex()
+
+	return &modules.WalletExtra{
+		AddressAlias: map[string]string{
+			doc.ChainETH: address,
+		},
 		PrivateKey: privateKeyString,
-		PublicKey:  publicKeyString,
-		UpdateTime: time.Now().Unix(),
+		Wallet: modules.Wallet{
+			Address:    address,
+			PublicKey:  publicKeyString,
+			UpdateTime: time.Now().Unix(),
+		},
+		CryptoType: doc.CryptoSECP256K1,
 	}, nil
 }
