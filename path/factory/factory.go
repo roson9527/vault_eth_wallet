@@ -24,8 +24,14 @@ func Do() []*framework.Path {
 		ps := iPath.Path()
 		hclog.Default().Info("path:factory:do", "package", name, "paths.length", len(ps))
 		for _, p := range ps {
+			ops := make([]string, 0)
+			if p.Operations != nil {
+				for k, _ := range p.Operations {
+					ops = append(ops, string(k))
+				}
+			}
 			// 输出日志
-			hclog.Default().Info("path:factory:do", "package", name, "path", p.Pattern)
+			hclog.Default().Info("path:factory:do", "package", name, "path", p.Pattern, "operations", ops)
 		}
 
 		out = append(out, iPath.Path()...)

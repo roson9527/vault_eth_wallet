@@ -7,10 +7,9 @@ import (
 	"github.com/roson9527/vault_eth_wallet/modules"
 	"github.com/roson9527/vault_eth_wallet/path/doc"
 	"github.com/roson9527/vault_eth_wallet/path/storage"
-	"gopkg.in/ffmt.v1"
 )
 
-func (c *walletText) Update(payload *modules.WalletExtra) error {
+func (c *walletText) Put(payload *modules.WalletExtra) error {
 	var data map[string]any
 	if payload == nil {
 		return errors.New("payload is nil")
@@ -20,8 +19,6 @@ func (c *walletText) Update(payload *modules.WalletExtra) error {
 	if err != nil {
 		return err
 	}
-
-	ffmt.Print(data)
 
 	_, err = c.Meta.Logical().Write(c.conf.SecretPath+fmt.Sprintf(storage.PatternWallet, doc.NameSpaceGlobal,
 		doc.CryptoTEXT, payload.Address), data)

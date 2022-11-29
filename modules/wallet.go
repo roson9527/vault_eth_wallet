@@ -12,8 +12,9 @@ import (
 )
 
 type Extra struct {
-	IsLock bool     `json:"is_lock" mapstructure:"is_lock"`
-	Tags   []string `json:"tags" mapstructure:"tags"`
+	IsLock   bool            `json:"is_lock" mapstructure:"is_lock"`
+	Tags     []string        `json:"tags,omitempty" mapstructure:"tags,omitempty"`
+	Metadata AddressAliasMap `json:"metadata,omitempty" mapstructure:"metadata,omitempty"`
 }
 
 func (w *Extra) Decode(m map[string]any) error {

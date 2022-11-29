@@ -10,7 +10,7 @@ import (
 	"github.com/roson9527/vault_eth_wallet/path/storage"
 )
 
-func (s *storageEx) update(ctx context.Context, req *logical.Request, payload *modules.WalletExtra) (*modules.WalletExtra, error) {
+func (s *storageEx) put(ctx context.Context, req *logical.Request, payload *modules.WalletExtra) (*modules.WalletExtra, error) {
 	if !(payload.Address != "") {
 		return nil, errors.New("default address is nil")
 	}

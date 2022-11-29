@@ -27,85 +27,95 @@ func newSocialIDStorage() *socialIDStorage {
 	return &socialIDStorage{}
 }
 
-func (as *socialIDStorage) Read(ctx context.Context, req *logical.Request, namespace, app, user string) (*modules.SocialID, error) {
-	path := fmt.Sprintf(PatternSocialID, doc.NameSpaceGlobal, app, user)
-	entry, err := req.Storage.Get(ctx, path)
+func (as *socialIDStorage) ReadFromPath(ctx context.Context, req *logical.Request, p string) (*modules.SocialID, error) {
+	entry, err := req.Storage.Get(ctx, p)
 
 	if err != nil {
 		return nil, err
 	}
 	if entry == nil {
-		return nil, errors.New(fmt.Sprintf("[%s] social id not found", path))
+		return nil, errors.New(fmt.Sprintf("[%s] social id not found", p))
 	}
 
 	var ety modules.SocialID
 	err = entry.DecodeJSON(&ety)
 
 	if ety.User == "" {
-		return nil, fmt.Errorf("failed to deserialize user at %s", path)
+		return nil, fmt.Errorf("failed to deserialize user at %s", p)
 	}
 
-	if namespace == doc.NameSpaceGlobal {
-		return &ety, nil
-	}
-
-	if ety.NameSpaces == nil {
-		return nil, fmt.Errorf("discord %s does not have namespace %s", ety.User, namespace)
-	}
-
-	for _, ns := range ety.NameSpaces {
-		if ns == namespace {
-			return &ety, nil
-		}
-	}
-
-	return nil, fmt.Errorf("not support namespace %s", namespace)
+	return &ety, nil
 }
 
-func (as *socialIDStorage) Update(ctx context.Context, req *logical.Request, payload *modules.SocialID) (*modules.SocialID, error) {
-	oldSocialId, err := as.Read(ctx, req, doc.NameSpaceGlobal, payload.App, payload.User)
+func (as *socialIDStorage) Read(ctx context.Context, req *logical.Request, app, user string) (*modules.SocialID, error) {
+	path := as.SrcPath(app, user)
+	return as.ReadFromPath(ctx, req, path)
+}
+
+func (as *socialIDStorage) SrcPath(app, user string) string {
+	return fmt.Sprintf(PatternSocialID, doc.NameSpaceGlobal, app, user)
+}
+
+func (as *socialIDStorage) Put(ctx context.Context, req *logical.Request, app, user string, socialID *modules.SocialID) error {
+	path := as.SrcPath(app, user)
+	entry, err := logical.StorageEntryJSON(path, socialID)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	oldSocialId.UpdateTime = payload.UpdateTime
-	oldSocialId.NameSpaces = payload.NameSpaces
-
-	path := fmt.Sprintf(PatternSocialID, doc.NameSpaceGlobal, payload.App, payload.User)
-	entry, err := logical.StorageEntryJSON(path, oldSocialId)
-	if err != nil {
-		return nil, err
-	}
-
 	err = req.Storage.Put(ctx, entry)
-	if err != nil {
-		return nil, err
-	}
-
-	return payload, nil
+	return err
 }
 
-func (as *socialIDStorage) Create(ctx context.Context, req *logical.Request, user string, payload *modules.SocialID) (*modules.SocialID, error) {
-	if payload.User == "" {
-		return nil, errors.New("socialID.user is empty")
-	}
-	if payload.App == "" {
-		return nil, errors.New("socialID.app is empty")
-	}
-
-	insertPath := fmt.Sprintf(PatternSocialID, doc.NameSpaceGlobal, payload.App, user)
-	entry, err := logical.StorageEntryJSON(insertPath, payload)
-	if err != nil {
-		return nil, err
-	}
-
-	err = req.Storage.Put(ctx, entry)
-	if err != nil {
-		return nil, err
-	}
-
-	return payload, nil
-}
+//func (as *socialIDStorage) Update(ctx context.Context, req *logical.Request, user string, payload *modules.SocialID) (*modules.SocialID, error) {
+//	oldSocialId, err := as.Read(ctx, req, payload.App, user)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	oldSocialId.UpdateTime = payload.UpdateTime
+//	oldSocialId.NameSpaces = payload.NameSpaces
+//	if payload.Password != "" {
+//		oldSocialId.Password = payload.Password
+//	}
+//	if payload.TwoFASecret != "" {
+//		oldSocialId.TwoFASecret = payload.TwoFASecret
+//	}
+//
+//	path := as.SrcPath(payload.App, payload.User)
+//	entry, err := logical.StorageEntryJSON(path, oldSocialId)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	err = req.Storage.Put(ctx, entry)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return payload, nil
+//}
+//
+//func (as *socialIDStorage) Create(ctx context.Context, req *logical.Request, user string, payload *modules.SocialID) (*modules.SocialID, error) {
+//	if payload.User == "" {
+//		return nil, errors.New("socialID.user is empty")
+//	}
+//	if payload.App == "" {
+//		return nil, errors.New("socialID.app is empty")
+//	}
+//
+//	insertPath := as.SrcPath(payload.App, user)
+//	entry, err := logical.StorageEntryJSON(insertPath, payload)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	err = req.Storage.Put(ctx, entry)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return payload, nil
+//}
 
 func (as *socialIDStorage) List(ctx context.Context, req *logical.Request, app string) ([]string, error) {
 	return req.Storage.List(ctx, fmt.Sprintf(PatternSocialID, doc.NameSpaceGlobal, app, ""))

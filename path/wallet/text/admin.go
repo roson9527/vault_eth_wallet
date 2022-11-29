@@ -11,7 +11,7 @@ import (
 func (h *handler) admin() []*framework.Path {
 	return []*framework.Path{
 		{
-			// update + delete
+			// put + delete
 			Pattern: fmt.Sprintf(storage.PatternWallet, doc.NameSpaceGlobal, doc.CryptoTEXT,
 				framework.GenericNameRegex(doc.FieldAddress)),
 			Fields: map[string]*framework.FieldSchema{
@@ -22,10 +22,10 @@ func (h *handler) admin() []*framework.Path {
 			},
 			Operations: map[logical.Operation]framework.OperationHandler{
 				logical.UpdateOperation: &framework.PathOperation{
-					Callback: h.callback.update,
+					Callback: h.callback.put,
 				},
 				logical.CreateOperation: &framework.PathOperation{
-					Callback: h.callback.update,
+					Callback: h.callback.put,
 				},
 				logical.DeleteOperation: &framework.PathOperation{
 					Callback: h.callback.delete,

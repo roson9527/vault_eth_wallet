@@ -13,7 +13,7 @@ func (c *social) Delete(app, user string) error {
 	return err
 }
 
-func (c *social) Create(user string, src *modules.SocialID) (*modules.SocialID, error) {
+func (c *social) Put(user string, src *modules.SocialID) (*modules.SocialID, error) {
 	var payload = make(map[string]any)
 	data := make(map[string]any)
 	err := mapstructure.WeakDecode(src, &data)
@@ -24,7 +24,7 @@ func (c *social) Create(user string, src *modules.SocialID) (*modules.SocialID, 
 	payload[doc.FieldSocialID] = data
 
 	sec, err := c.Meta.Logical().Write(c.conf.SecretPath+
-		fmt.Sprintf(storage.PatternSocialID, doc.NameSpaceGlobal, src.App, user)+"/"+doc.PathSubNew, payload)
+		fmt.Sprintf(storage.PatternSocialID, doc.NameSpaceGlobal, src.App, user), payload)
 	if err != nil {
 		panic(err)
 	}
@@ -35,15 +35,6 @@ func (c *social) Create(user string, src *modules.SocialID) (*modules.SocialID, 
 		return nil, err
 	}
 	return &out, nil
-}
-
-func (c *social) Update(app, user string, namespaces []string) error {
-	payload := make(map[string]any)
-	payload[doc.FieldNameSpaces] = namespaces
-
-	_, err := c.Meta.Logical().Write(c.conf.SecretPath+
-		fmt.Sprintf(storage.PatternSocialID, doc.NameSpaceGlobal, app, user), payload)
-	return err
 }
 
 func (c *social) Export(namespace, app, user string) (*modules.SocialID, error) {

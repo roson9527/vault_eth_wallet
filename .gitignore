@@ -24,3 +24,7 @@ client/wallet_local_test.go
 client/wallet_text_local_test.go
 path/socialid/helper_test.go
 client/policy_local_test.go
+social_test.go
+client/*.json
+client/*.txt
+client/*_test.go

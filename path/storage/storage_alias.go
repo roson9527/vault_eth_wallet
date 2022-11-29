@@ -78,7 +78,7 @@ func (as *aliasStorage) update(ctx context.Context, req *logical.Request, aType,
 	// 2、添加在旧的namespace中不存在的alias
 	waitAdd := make([]string, 0)
 	for _, ns := range newNS {
-		if !contains(oldNS, ns) {
+		if !contains(oldNS, ns) && ns != "" {
 			waitAdd = append(waitAdd, ns)
 		}
 	}

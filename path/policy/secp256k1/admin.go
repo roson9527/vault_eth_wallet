@@ -39,10 +39,10 @@ func (h *handler) admin() []*framework.Path {
 
 			Operations: map[logical.Operation]framework.OperationHandler{
 				logical.UpdateOperation: &framework.PathOperation{
-					Callback: h.callback.update,
+					Callback: h.callback.put,
 				},
 				logical.CreateOperation: &framework.PathOperation{
-					Callback: h.callback.update,
+					Callback: h.callback.put,
 				},
 				logical.ReadOperation: &framework.PathOperation{
 					Callback: h.callback.read,

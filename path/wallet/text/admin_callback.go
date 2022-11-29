@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (cb *callback) update(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) put(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var payload modules.WalletExtra
 	err := mapstructure.Decode(data.Raw, &payload)
 	if err != nil {
@@ -24,7 +24,7 @@ func (cb *callback) update(ctx context.Context, req *logical.Request, data *fram
 	payload.CryptoType = doc.CryptoTEXT
 	payload.UpdateTime = time.Now().Unix()
 
-	w, err := cb.Storage.update(ctx, req, &payload)
+	w, err := cb.Storage.put(ctx, req, &payload)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (cb *callback) list(ctx context.Context, req *logical.Request, _ *framework
 func (cb *callback) listAlias(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	namespace := data.Get(doc.FieldNameSpace).(string)
 	chain := data.Get(doc.FieldChain).(string)
-	alias, err := cb.Storage.list(ctx, req, namespace, aliasType(chain))
+	alias, err := cb.Storage.list(ctx, req, namespace, chain)
 	if err != nil {
 		return nil, err
 	}

@@ -32,6 +32,6 @@ func socialIDResponseData(socialId *modules.SocialID, extra bool) map[string]any
 	return out
 }
 
-func app2AType(app string) string {
+func aliasType(app string) string {
 	return fmt.Sprintf(doc.AliasSocial, app)
 }

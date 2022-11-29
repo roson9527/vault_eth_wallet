@@ -23,12 +23,9 @@ func (c *social) List(project, app string) ([]string, error) {
 		return []string{}, nil
 	}
 
-	out := make([]string, 0)
-	for _, v := range sec.Data[doc.FieldKeys].([]any) {
-		out = append(out, fmt.Sprintf("%s", v))
-	}
-
-	return out, nil
+	var out []string
+	err = mapstructure.Decode(sec.Data[doc.FieldKeys], &out)
+	return out, err
 }
 
 func (c *social) Read(project, app, user string) (*modules.SocialID, error) {

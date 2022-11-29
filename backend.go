@@ -26,6 +26,7 @@ import (
 // 注册的path引用
 import (
 	_ "github.com/roson9527/vault_eth_wallet/path/policy"
+	_ "github.com/roson9527/vault_eth_wallet/path/socialid"
 	_ "github.com/roson9527/vault_eth_wallet/path/wallet"
 )
 
@@ -64,7 +65,7 @@ func NewBackend() (*modules.EthWalletBackend, error) {
 		},
 		// 秘密类型列表，简化回调
 		Secrets:        []*framework.Secret{},
-		RunningVersion: "v0.3.0",
+		RunningVersion: "v0.3.1",
 		//// 初始化方法位置
 		//InitializeFunc:    nil,
 		//// 定时器回调

@@ -11,7 +11,11 @@ type handler struct {
 }
 
 type callback struct {
-	Storage *storage.Core
+	Storage *storageEx
+}
+
+type storageEx struct {
+	*storage.Core
 }
 
 type manager struct {
@@ -22,7 +26,9 @@ func newManager() *manager {
 	return &manager{
 		handler: &handler{
 			callback: &callback{
-				Storage: storage.Standard(),
+				&storageEx{
+					storage.Standard(),
+				},
 			},
 		},
 	}

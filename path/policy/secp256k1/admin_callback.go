@@ -10,7 +10,7 @@ import (
 	"github.com/roson9527/vault_eth_wallet/path/doc"
 )
 
-func (cb *callback) update(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (cb *callback) put(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	policy, err := cb.Storage.Policy.Write(ctx, req, data)
 	if err != nil {
 		return nil, err
